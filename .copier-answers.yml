@@ -1,0 +1,9 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 3179c16
+_src_path: gh:schwallergroup/copier-liac-minimal
+author_email: marie-caroline.bilocq@epfl.ch
+author_name: Marie-Caroline Bilocq
+github_org: mariebilocq
+package_name: chooseyourperfume
+project_name: chooseyourperfume
+short_description: choose a perfume
