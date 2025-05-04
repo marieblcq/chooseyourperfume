@@ -13,12 +13,12 @@ def test_load_dataset_1_smiles_odors():
     df = load_csv(path=path)
     assert isinstance(df, pd.DataFrame)
     assert not df.empty
-    assert "SMILES" in df.columns
-    assert "Odor" in df.columns
+    assert "nonStereoSMILES" in df.columns
+    assert "descriptors" in df.columns
 
 
 def test_load_dataset_2_perfume_descriptions():
-    path = os.path.join("data", "datasets", "Perfume_Descriptions.csv")
+    path = os.path.join("data", "datasets", "final_perfume_data.csv")
     df = load_csv(path=path)
     assert isinstance(df, pd.DataFrame)
     assert not df.empty
@@ -27,16 +27,16 @@ def test_load_dataset_2_perfume_descriptions():
 
 
 def test_load_dataset_3_fragrantica_general():
-    path = os.path.join("data", "datasets", "Fragrantica_General.csv")
+    path = os.path.join("data", "datasets", "fra_cleaned.csv")
     df = load_csv(path=path, sep=";")
     assert isinstance(df, pd.DataFrame)
     assert not df.empty
-    assert "Perfume" in df.columns or "Name" in df.columns
+    assert "Perfume" in df.columns
     assert "Top" in df.columns
 
 
 def test_load_dataset_4_fragrantica_clean():
-    path = os.path.join("data", "datasets", "Fragrantica_Clean.csv")
+    path = os.path.join("data", "datasets", "fra_perfumes.csv")
     df = load_csv(path=path)
     assert isinstance(df, pd.DataFrame)
     assert not df.empty
