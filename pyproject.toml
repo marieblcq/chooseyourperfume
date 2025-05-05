@@ -9,7 +9,7 @@ requires-python = ">=3.10"
 license = {file = "LICENSE"}
 description = "choose a perfume"
 dependencies = [
-    # "rdkit",
+    "rdkit", "pandas", "streamlit"
 ]
 authors = [
     {name = "Marie-Caroline Bilocq", email = "marie-caroline.bilocq@epfl.ch"}
