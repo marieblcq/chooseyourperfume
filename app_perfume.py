@@ -3,7 +3,7 @@ import sys
 import os
 
 # Add the src directory to the path
-sys.path.append('/Users/victoireollari/Library/CloudStorage/OneDrive-Personal/git/chooseyourperfume/src')
+sys.path.append('src/')
 
 # Correct import from logic_cyp directly in src
 from logic_cyp import (
