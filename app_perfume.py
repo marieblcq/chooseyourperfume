@@ -3,12 +3,14 @@ import sys
 import os
 from rdkit import Chem
 from rdkit.Chem import Draw
-
+import io
+from PIL import Image
 
 # Add the src directory to the path
 sys.path.append('src/')
 
 # Correct import from logic_cyp directly in src
+
 from logic_cyp import (
     load_data,
     ask_preferences,
@@ -35,27 +37,41 @@ selected_scents = st.multiselect(
     options=scent_options
 )
 
+
 # --- Step 2: Show Molecules for Selected Scents ---
 if selected_scents:
     st.subheader("🔬 Molecules related to your scent preferences")
     molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
-    st.dataframe(molecule_df)
 
-    molecules_images = []
-    for smiles in molecule_df["smiles"]:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol:
-            img = Draw.MolToImage(mol, size=(200, 200))
-            molecules_images.append(img)
-        else:
-            st.warning(f"Invalid SMILES: {smiles}")
-    if molecules_images:
-        for img in molecules_images:
-            st.image(img, caption="Molecule Structure", use_column_width=True)
-        st.write("These are the molecules related to your selected scents.")
+    if molecule_df.empty:
+        st.warning("No molecules found for the selected scents.")
     else:
-        st.warning("No valid molecules to display.")
+        st.dataframe(molecule_df)
+        st.success("Molecules found!")
+
+        molecules_images = []
+
+        for smiles in molecule_df["nonStereoSMILES"]:
+            try:
+                mol = Chem.MolFromSmiles(smiles)
+                if mol:
+                    img = Draw.MolToImage(mol, size=(200, 200))
+                    molecules_images.append((img, smiles))
+                else:
+                    st.warning(f"Invalid SMILES: {smiles}")
+            except Exception as e:
+                st.warning(f"Error parsing SMILES {smiles}: {e}")
+
+        if molecules_images:
+            st.subheader("🧪 Molecule Structures")
+            for img, smiles in molecules_images:
+                st.image(img, caption=smiles, use_column_width=True)
+        else:
+            st.warning("No valid molecules to display.")
+
+    
 # --- Step 3: Show Recommended Perfumes ---
+
 if selected_scents:
     st.subheader("✨ Perfumes that match your preferences")
     top_perfumes = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df)
@@ -71,5 +87,3 @@ if not {"score"}.intersection(available_columns):
     st.warning("No score or perfume name columns found in the data. Please check your dataset.")
 else:
     st.dataframe(top_perfumes[available_columns].head(5))
-
-
