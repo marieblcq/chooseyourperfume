@@ -5,6 +5,8 @@ import io
 from PIL import Image
 from rdkit import Chem
 from rdkit.Chem import Draw
+import base64
+import pandas as pd
 
 # Add the src directory to the path for logic_cyp
 sys.path.append('src/')
@@ -41,8 +43,7 @@ if selected_scents:
     molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
     st.dataframe(molecule_df)
 
-   import base64
-import pandas as pd
+
 
 # Create a table with SMILES and structure image
 rows = []
