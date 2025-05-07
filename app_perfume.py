@@ -1,15 +1,13 @@
 import streamlit as st
 import sys
 import os
-from rdkit import Chem
-from rdkit.Chem import Draw
 import io
 from PIL import Image
+from rdkit import Chem
+from rdkit.Chem import Draw
 
-# Add the src directory to the path
+# Add the src directory to the path for logic_cyp
 sys.path.append('src/')
-
-# Correct import from logic_cyp directly in src
 
 from logic_cyp import (
     load_data,
@@ -37,7 +35,6 @@ selected_scents = st.multiselect(
     options=scent_options
 )
 
-
 # --- Step 2: Show Molecules for Selected Scents ---
 if selected_scents:
     st.subheader("🔬 Molecules related to your scent preferences")
@@ -47,43 +44,28 @@ if selected_scents:
         st.warning("No molecules found for the selected scents.")
     else:
         st.dataframe(molecule_df)
-        st.success("Molecules found!")
 
-        molecules_images = []
-
+        st.subheader("🧪 Molecule Structures")
         for smiles in molecule_df["nonStereoSMILES"]:
-            try:
-                mol = Chem.MolFromSmiles(smiles)
-                if mol:
-                    img = Draw.MolToImage(mol, size=(200, 200))
-                    molecules_images.append((img, smiles))
-                else:
-                    st.warning(f"Invalid SMILES: {smiles}")
-            except Exception as e:
-                st.warning(f"Error parsing SMILES {smiles}: {e}")
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
+                img = Draw.MolToImage(mol, size=(200, 200))
+                buf = io.BytesIO()
+                img.save(buf, format="PNG")
+                st.image(buf.getvalue(), caption=smiles, use_column_width=True)
+            else:
+                st.warning(f"Invalid SMILES: {smiles}")
 
-        if molecules_images:
-            st.subheader("🧪 Molecule Structures")
-            for img, smiles in molecules_images:
-                st.image(img, caption=smiles, use_column_width=True)
-        else:
-            st.warning("No valid molecules to display.")
-
-    
 # --- Step 3: Show Recommended Perfumes ---
-
 if selected_scents:
     st.subheader("✨ Perfumes that match your preferences")
     top_perfumes = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df)
-    
-    # Show top 5 perfumes
-    st.write("Here are your top matches:")
-    # Figure out which columns to display safely
-preferred_columns = ["PerfumeID", "PerfumeName", "id", "name", "score"]
-available_columns = [col for col in preferred_columns if col in top_perfumes.columns]
 
-# Show a warning if expected columns are missing
-if not {"score"}.intersection(available_columns):
-    st.warning("No score or perfume name columns found in the data. Please check your dataset.")
-else:
-    st.dataframe(top_perfumes[available_columns].head(5))
+    preferred_columns = ["PerfumeID", "PerfumeName", "id", "name", "score"]
+    available_columns = [col for col in preferred_columns if col in top_perfumes.columns]
+
+    if not {"score"}.intersection(available_columns):
+        st.warning("No score or perfume name columns found in the data. Please check your dataset.")
+    else:
+        st.write("Here are your top matches:")
+        st.dataframe(top_perfumes[available_columns].head(5))
