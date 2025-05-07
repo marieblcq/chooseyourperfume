@@ -11,6 +11,7 @@ import pandas as pd
 # Add the src directory to the path for logic_cyp
 sys.path.append('src/')
 
+# Correct import from logic_cyp directly in src
 from logic_cyp import (
     load_data,
     ask_preferences,
@@ -20,7 +21,12 @@ from logic_cyp import (
 
 # --- Streamlit App ---
 st.set_page_config(page_title="Choose Your Perfume", layout="centered")
-st.title("🌸 Choose Your Perfume")
+col1, col2 = st.columns([1, 5])
+with col1:
+    st.image("assets/logo.png", width=700)
+with col2:
+    st.markdown("<h1 style='margin-bottom: 0;'>Choose Your Perfume</h1><p style='color:gray;'>Find your signature scent</p>", unsafe_allow_html=True)
+
 
 @st.cache_data
 def cached_load_data():
