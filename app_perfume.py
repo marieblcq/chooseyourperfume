@@ -53,7 +53,19 @@ if selected_scents:
             st.image(buf.getvalue(), caption=smiles, use_column_width=True)
         else:
             st.warning(f"Invalid SMILES: {smiles}")
+st.subheader("🧪 Molecule Grid")
 
+cols = st.columns(3)  # Adjust for 2, 3, or 4 per row
+
+for i, smiles in enumerate(molecule_df["nonStereoSMILES"]):
+    mol = Chem.MolFromSmiles(smiles)
+    if mol:
+        img = Draw.MolToImage(mol, size=(150, 150))
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        with cols[i % 3]:
+            st.image(buf.getvalue(), caption=smiles)
+    
 # --- Step 3: Show Recommended Perfumes ---
 if selected_scents:
     st.subheader("✨ Perfumes that match your preferences")
