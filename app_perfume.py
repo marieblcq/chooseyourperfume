@@ -41,30 +41,30 @@ if selected_scents:
     molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
     st.dataframe(molecule_df)
 
-    # 🧪 Molecule rendering
-    st.subheader("🧪 Molecule Structures")
-    for smiles in molecule_df["nonStereoSMILES"]:
-        st.write(f"Rendering: {smiles}")
-        mol = Chem.MolFromSmiles(smiles)
-        if mol:
-            img = Draw.MolToImage(mol, size=(200, 200))
-            buf = io.BytesIO()
-            img.save(buf, format="PNG")
-            st.image(buf.getvalue(), caption=smiles, use_column_width=True)
-        else:
-            st.warning(f"Invalid SMILES: {smiles}")
-st.subheader("🧪 Molecule Grid")
+   import base64
+import pandas as pd
 
-cols = st.columns(3)  # Adjust for 2, 3, or 4 per row
+# Create a table with SMILES and structure image
+rows = []
 
-for i, smiles in enumerate(molecule_df["nonStereoSMILES"]):
+for smiles in molecule_df["nonStereoSMILES"]:
     mol = Chem.MolFromSmiles(smiles)
     if mol:
-        img = Draw.MolToImage(mol, size=(150, 150))
+        img = Draw.MolToImage(mol, size=(100, 100))  # Smaller image
         buf = io.BytesIO()
         img.save(buf, format="PNG")
-        with cols[i % 3]:
-            st.image(buf.getvalue(), caption=smiles)
+        b64 = base64.b64encode(buf.getvalue()).decode()
+        img_html = f'<img src="data:image/png;base64,{b64}" width="100">'
+        rows.append({"SMILES": smiles, "Structure": img_html})
+    else:
+        rows.append({"SMILES": smiles, "Structure": "Invalid SMILES"})
+
+# Create and render the styled table
+df = pd.DataFrame(rows)
+st.write("🧬 Molecule Structures Table")
+st.write(df.to_html(escape=False), unsafe_allow_html=True)
+
+
     
 # --- Step 3: Show Recommended Perfumes ---
 if selected_scents:
