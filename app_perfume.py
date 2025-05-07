@@ -39,13 +39,12 @@ selected_scents = st.multiselect(
 if selected_scents:
     st.subheader("🔬 Molecules related to your scent preferences")
     molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
-    
-    import io
+    st.dataframe(molecule_df)
 
+    # 🧪 Molecule rendering
     st.subheader("🧪 Molecule Structures")
-
     for smiles in molecule_df["nonStereoSMILES"]:
-        st.write("Rendering:", smiles)
+        st.write(f"Rendering: {smiles}")
         mol = Chem.MolFromSmiles(smiles)
         if mol:
             img = Draw.MolToImage(mol, size=(200, 200))
