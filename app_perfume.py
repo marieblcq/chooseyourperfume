@@ -1,6 +1,9 @@
 import streamlit as st
 import sys
 import os
+from rdkit import Chem
+from rdkit.Chem import Draw
+
 
 # Add the src directory to the path
 sys.path.append('src/')
@@ -38,6 +41,20 @@ if selected_scents:
     molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
     st.dataframe(molecule_df)
 
+    molecules_images = []
+    for smiles in molecule_df["smiles"]:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            img = Draw.MolToImage(mol, size=(200, 200))
+            molecules_images.append(img)
+        else:
+            st.warning(f"Invalid SMILES: {smiles}")
+    if molecules_images:
+        for img in molecules_images:
+            st.image(img, caption="Molecule Structure", use_column_width=True)
+        st.write("These are the molecules related to your selected scents.")
+    else:
+        st.warning("No valid molecules to display.")
 # --- Step 3: Show Recommended Perfumes ---
 if selected_scents:
     st.subheader("✨ Perfumes that match your preferences")
@@ -51,7 +68,7 @@ available_columns = [col for col in preferred_columns if col in top_perfumes.col
 
 # Show a warning if expected columns are missing
 if not {"score"}.intersection(available_columns):
-    st.warning("No score or perfume name columns found in the result. Please check your dataset.")
+    st.warning("No score or perfume name columns found in the data. Please check your dataset.")
 else:
     st.dataframe(top_perfumes[available_columns].head(5))
 
