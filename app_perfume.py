@@ -39,22 +39,21 @@ selected_scents = st.multiselect(
 if selected_scents:
     st.subheader("🔬 Molecules related to your scent preferences")
     molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
+    
+    import io
 
-    if molecule_df.empty:
-        st.warning("No molecules found for the selected scents.")
-    else:
-        st.dataframe(molecule_df)
+    st.subheader("🧪 Molecule Structures")
 
-        st.subheader("🧪 Molecule Structures")
-        for smiles in molecule_df["nonStereoSMILES"]:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                img = Draw.MolToImage(mol, size=(200, 200))
-                buf = io.BytesIO()
-                img.save(buf, format="PNG")
-                st.image(buf.getvalue(), caption=smiles, use_column_width=True)
-            else:
-                st.warning(f"Invalid SMILES: {smiles}")
+    for smiles in molecule_df["nonStereoSMILES"]:
+        st.write("Rendering:", smiles)
+        mol = Chem.MolFromSmiles(smiles)
+        if mol:
+            img = Draw.MolToImage(mol, size=(200, 200))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            st.image(buf.getvalue(), caption=smiles, use_column_width=True)
+        else:
+            st.warning(f"Invalid SMILES: {smiles}")
 
 # --- Step 3: Show Recommended Perfumes ---
 if selected_scents:
