@@ -1,10 +1,6 @@
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-
-import pandas as pd
-
-import pandas as pd
 import os
 
 def load_data():
@@ -30,8 +26,6 @@ def ask_preferences():
     ]
     return scent_categories
 
-
-import pandas as pd
 
 def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df):
     perfume_scores = perfume_to_scent_df.copy()
@@ -63,8 +57,6 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df):
     result = result.sort_values(by="score", ascending=False)
 
     return result
-
-
 
 
 # Get molecules (SMILES) related to selected scent categories
