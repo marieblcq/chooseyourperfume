@@ -9,10 +9,10 @@ import base64
 import pandas as pd
 
 # Add the src directory to the path for logic_cyp
-sys.path.append('src/')
+# sys.path.append('src/')
 
 # Correct import from logic_cyp directly in src
-from logic_cyp import (
+from chooseyourperfume.logic_cyp import (
     load_data,
     ask_preferences,
     score_perfumes,

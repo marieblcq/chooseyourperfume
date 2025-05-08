@@ -6,10 +6,10 @@ import os
 def load_data():
     base_path = os.path.dirname(os.path.abspath(__file__))  # this is the 'src' folder
 
-    perfume_to_scent_df = pd.read_csv(os.path.join(base_path, "../data/datasets/final_perfume_data.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
-    perfume_clean_df = pd.read_csv(os.path.join(base_path, "../data/datasets/fra_cleaned.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
-    perfume_df = pd.read_csv(os.path.join(base_path, "../data/datasets/fra_perfumes.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
-    scent_to_smiles_df = pd.read_csv(os.path.join(base_path, "../data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
+    perfume_to_scent_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/final_perfume_data.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
+    perfume_clean_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/fra_cleaned.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
+    perfume_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/fra_perfumes.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
+    scent_to_smiles_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
 
     return perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df
 
