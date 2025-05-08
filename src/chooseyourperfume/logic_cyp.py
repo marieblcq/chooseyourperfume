@@ -3,28 +3,30 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 import os
 
+from .dataset import scent_categories
+from .dataset import(
+    load_csv,
+    load_perfume_descriptions,
+    load_fragrantica_data,
+    load_extended_perfume_set,
+    load_smiles_odors
+)
 def load_data():
-    base_path = os.path.dirname(os.path.abspath(__file__))  # this is the 'src' folder
-
-    perfume_to_scent_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/final_perfume_data.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
-    perfume_clean_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/fra_cleaned.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
-    perfume_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/fra_perfumes.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
-    scent_to_smiles_df = pd.read_csv(os.path.join(base_path, "../../data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv"), encoding="ISO-8859-1",on_bad_lines='skip')
+    perfume_to_scent_df = load_perfume_descriptions()       # Dataset 1
+    perfume_clean_df = load_fragrantica_data()              # Dataset 2
+    perfume_df = load_extended_perfume_set()                # Dataset 3
+    scent_to_smiles_df = load_smiles_odors()                # Dataset 4
 
     return perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df
-
-
 
 def render_molecule(smiles):
     mol = Chem.MolFromSmiles(smiles)
     return Draw.MolToImage(mol, size=(200, 200))
 
+
+
 def ask_preferences():
-    scent_categories = [
-        "floral", "woody", "fresh", "citrus", "spicy", "oriental",
-        "fruity", "aquatic", "green", "gourmand", "leather", "musk"
-    ]
-    return scent_categories
+    return scent_categories 
 
 
 def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df):

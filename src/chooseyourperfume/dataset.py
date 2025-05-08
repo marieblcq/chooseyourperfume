@@ -58,3 +58,91 @@ if __name__ == "__main__":
             print(df.head(2)) # Display the first 2 rows for verification of the data loading
         except Exception as e:
             print(f" Error loading {name}: {e}")
+
+
+#Filter
+# Example loading step (adjust if already loaded)
+df = load_smiles_odors()
+
+# Filter rows where the 'fishy' category is active (i.e., value is 1)
+fishy_df = df[df["fishy"] == 1]
+
+# Display result
+#print(fishy_df[["nonStereoSMILES", "descriptors"]])  # Show relevant columns
+
+def filter_by_category(df, category):
+    if category not in df.columns:
+        raise ValueError(f"Category '{category}' not found in dataset.")
+    return df[df[category] == 1]
+
+# Example usage
+category = "fruity"
+fruity_df = filter_by_category(df, category)
+#print(fruity_df[["nonStereoSMILES", "descriptors"]])
+
+
+# Création de la liste des catégories (toutes les colonnes sauf les deux premières)
+categories = df.columns[2:].tolist()
+
+# Vérification
+print(categories)
+
+scent_categories = {
+    "Floral": [
+        'floral', 'jasmin', 'rose', 'violet', 'lily', 'hyacinth', 'lavender',
+        'muguet', 'chamomile', 'orangeflower', 'geranium'
+    ],
+    "Fruity": [
+        'fruity', 'apple', 'apricot', 'banana', 'berry', 'black currant',
+        'citrus', 'grape', 'grapefruit', 'melon', 'orange', 'peach', 'pear',
+        'pineapple', 'plum', 'raspberry', 'strawberry', 'tropical'
+    ],
+    "Vegetal / Herbal": [
+        'green', 'grassy', 'herbal', 'leafy', 'celery', 'cucumber', 'hay',
+        'hawthorn', 'weedy', 'vegetable'
+    ],
+    "Sweet / Gourmand": [
+        'sweet', 'creamy', 'coconut', 'vanilla', 'chocolate', 'caramellic',
+        'buttery', 'honey', 'almond', 'milky'
+    ],
+    "Nutty / Seed": [
+        'nutty', 'hazelnut', 'almond'
+    ],
+    "Lactonic / Milky": [
+        'lactonic', 'dairy', 'milky', 'creamy'
+    ],
+    "Spicy / Aromatic": [
+        'spicy', 'clove', 'cinnamon', 'anisic', 'mint', 'coumarinic', 'camphoreous'
+    ],
+    "Fresh / Volatile": [
+        'fresh', 'cooling', 'ethereal', 'ozone', 'clean', 'citrus'
+    ],
+    "Woody / Resinous": [
+        'woody', 'sandalwood', 'cedar', 'pine', 'cortex', 'amber', 'vetiver'
+    ],
+    "Animalic / Meaty": [
+        'animal', 'meaty', 'beefy', 'musk', 'leathery', 'sweaty', 'savory'
+    ],
+    "Smoky / Roasted / Burnt": [
+        'smoky', 'burnt', 'roasted', 'cooked', 'popcorn', 'coffee'
+    ],
+    "Fermented / Cheesy": [
+        'cheesy', 'fermented', 'dairy'
+    ],
+    "Sulfurous / Allium-like": [
+        'sulfurous', 'garlic', 'onion', 'alliaceous', 'gassy', 'musty',
+        'cabbage', 'radish'
+    ],
+    "Alcohol / Solvent": [
+        'alcoholic', 'brandy', 'winey', 'cognac', 'solvent', 'rummy'
+    ],
+    "Earthy / Mineral / Metallic": [
+        'earthy', 'mushroom', 'metallic', 'oily', 'powdery'
+    ],
+    "Chemical / Medicinal": [
+        'medicinal', 'ketonic', 'phenolic', 'soapy', 'sharp', 'bitter'
+    ],
+    "Dry / Bitter / Neutral": [
+        'dry', 'bitter', 'natural', 'odorless'
+    ]
+}

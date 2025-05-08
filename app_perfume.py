@@ -34,55 +34,56 @@ def cached_load_data():
 
 perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df = cached_load_data()
 
+
 # --- Step 1: Ask Preferences ---
-st.header("Tell us about the scents you love")
-scent_options = ask_preferences()
+st.header("Tell us about the scents you love (by category)")
 
-selected_scents = st.multiselect(
-    "What scent types do you enjoy?",
-    options=scent_options
-)
+scent_dict = ask_preferences()
+selected_scents = []
 
-# --- Step 2: Show Molecules for Selected Scents ---
-if selected_scents:
-    st.subheader("🔬 Molecules related to your scent preferences")
-    molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
-    st.dataframe(molecule_df)
+for category, subscents in scent_dict.items():
+    with st.expander(f"{category}"):
+        selected = st.multiselect(
+            f"Choose your favorite notes from {category}", subscents, key=category
+        )
+        selected_scents.extend(selected)
 
-
-
-# Create a table with SMILES and structure image
-rows = []
-
-for smiles in molecule_df["nonStereoSMILES"]:
-    mol = Chem.MolFromSmiles(smiles)
-    if mol:
-        img = Draw.MolToImage(mol, size=(100, 100))  # Smaller image
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        b64 = base64.b64encode(buf.getvalue()).decode()
-        img_html = f'<img src="data:image/png;base64,{b64}" width="100">'
-        rows.append({"SMILES": smiles, "Structure": img_html})
+# --- Step 2: User clicks the button to generate recommendations ---
+if st.button("✨ Generate My Perfume"):
+    if not selected_scents:
+        st.warning("Please select at least one scent note before generating.")
     else:
-        rows.append({"SMILES": smiles, "Structure": "Invalid SMILES"})
+        # --- Step 3: Show Molecules for Selected Scents ---
+        st.subheader("🔬 Molecules related to your scent preferences")
+        molecule_df = get_molecules_for_scents(selected_scents, scent_to_smiles_df)
+        st.dataframe(molecule_df)
 
-# Create and render the styled table
-df = pd.DataFrame(rows)
-st.write("🧬 Molecule Structures Table")
-st.write(df.to_html(escape=False), unsafe_allow_html=True)
+        # Show SMILES + molecule structure
+        rows = []
+        for smiles in molecule_df["nonStereoSMILES"]:
+            mol = Chem.MolFromSmiles(smiles)
+            if mol:
+                img = Draw.MolToImage(mol, size=(100, 100))
+                buf = io.BytesIO()
+                img.save(buf, format="PNG")
+                b64 = base64.b64encode(buf.getvalue()).decode()
+                img_html = f'<img src="data:image/png;base64,{b64}" width="100">'
+                rows.append({"SMILES": smiles, "Structure": img_html})
+            else:
+                rows.append({"SMILES": smiles, "Structure": "Invalid SMILES"})
+        df = pd.DataFrame(rows)
+        st.write("🧬 Molecule Structures Table")
+        st.write(df.to_html(escape=False), unsafe_allow_html=True)
 
+        # --- Step 4: Show Recommended Perfumes ---
+        st.subheader("✨ Perfumes that match your preferences")
+        top_perfumes = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df)
 
-    
-# --- Step 3: Show Recommended Perfumes ---
-if selected_scents:
-    st.subheader("✨ Perfumes that match your preferences")
-    top_perfumes = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df)
+        preferred_columns = ["PerfumeID", "PerfumeName", "id", "name", "score"]
+        available_columns = [col for col in preferred_columns if col in top_perfumes.columns]
 
-    preferred_columns = ["PerfumeID", "PerfumeName", "id", "name", "score"]
-    available_columns = [col for col in preferred_columns if col in top_perfumes.columns]
-
-    if not {"score"}.intersection(available_columns):
-        st.warning("No score or perfume name columns found in the data. Please check your dataset.")
-    else:
-        st.write("Here are your top matches:")
-        st.dataframe(top_perfumes[available_columns].head(5))
+        if not {"score"}.intersection(available_columns):
+            st.warning("No score or perfume name columns found in the data. Please check your dataset.")
+        else:
+            st.write("Here are your top matches:")
+            st.dataframe(top_perfumes[available_columns].head(5))
