@@ -12,7 +12,7 @@ import pandas as pd
 # sys.path.append('src/')
 
 # Correct import from logic_cyp directly in src
-from chooseyourperfume.logic_cyp import (
+from src.chooseyourperfume.logic_cyp import (
     load_data,
     ask_preferences,
     score_perfumes,
