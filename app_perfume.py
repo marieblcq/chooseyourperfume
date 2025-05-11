@@ -11,14 +11,33 @@ from src.chooseyourperfume.logic_cyp import (
 
 # --- Config & CSS ---
 st.set_page_config(page_title="Choose Your Perfume", layout="wide")
+
+# CSS + Google Fonts Injection
 st.markdown(
     """
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet">
     <style>
-      .stApp { background-color: #F4EDDE; }
-      .css-1d391kg { background-color: #F4EDDE; }
+        /* Background */
+        .stApp { 
+            background-color: #F4EDDE !important; 
+        }
+
+        /* Police */
+        html, body, [class*="css"]  {
+            font-family: 'Cormorant Garamond', serif !important;
+            color: #4C3A32 !important;
+        }
+        
+        /* Titres */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif !important;
+            color: #4C3A32 !important;
+        }
     </style>
-    """, unsafe_allow_html=True
+    """,
+    unsafe_allow_html=True
 )
+
 
 # --- Data Loading ---
 @st.cache_data
@@ -32,7 +51,7 @@ with col1:
     st.image("assets/logo.png", width=180)
 with col2:
     st.markdown(
-        "<h1>✨ Choose Your Perfume</h1><p style='color:gray;'>Find your signature scent</p>",
+        "<h1> ⋆ CHOOSE YOUR PERFUME ⋆ </h1><p style='color:gray;'>Find your signature scent</p>",
         unsafe_allow_html=True
     )
 
@@ -92,7 +111,7 @@ if st.button("🔍 Generate Recommendations"):
         # Results panes
         col_mol, col_perf = st.columns(2, gap="large")
         with col_mol:
-            st.subheader("🔬 Molecules")
+            st.subheader("Molecules ⌬")
             # Build a flat table: each selected scent paired with its molecules
             mol_entries = []
             for scent in selected_scents:
@@ -114,7 +133,7 @@ if st.button("🔍 Generate Recommendations"):
             else:
                 st.write(mol_df.to_html(escape=False), unsafe_allow_html=True)
         with col_perf:
-            st.subheader("✨ Perfume Matches")
+            st.subheader("Perfume Matches ⚭")
             top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
             cols = [c for c in ['PerfumeName','brand','score'] if c in top.columns]
             st.dataframe(top[cols].head(5), use_container_width=True)
