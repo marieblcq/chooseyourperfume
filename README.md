@@ -1,15 +1,33 @@
-![Project Logo](assets/banner.png)
+![Project Logo](assets/logo.png)
 
 ![Coverage Status](assets/coverage-badge.svg)
 
 <h1 align="center">
-chooseyourperfume
+Choose Your Perfume 
 </h1>
 
 <br>
 
 
-choose a perfume
+A python package to help you find your perfect match, Choose your perfume is a true love story accessible to all.
+
+## emojie Package description
+
+Developped in 2025 by EPFL students, Choose Your perfume is a pip-installable python package which offers perfume recommendations based on the chosen preferences. It regroups a surprising variety of scents to ensure the highest level of customer satisfaction. Not only can the client choose his prefered scents, he can also use rate his fondness for each of them, in order to receive the most appropriate recommendations based on his wishes. Furthermore, in addition to the main goal of the package which is giving perfume recommendations, Choose Your Perfume offers an educational description of the molecules the client is looking for, including their names, chemical formulas and lewis drawings, in the hopes of developing in a client an interest for chemistry.
+
+## emoji Installation
+
+As this package is pip-installable, chooseyourperfume can be installed like so:
+```python
+git clone https://github.com/marieblcq/chooseyourperfume.git
+cd chooseyourperfume
+pip install .
+```
+Or via pip and github as well:
+```python
+pip install git+https://github.com/marieblcq/chooseyourperfume.git
+```
+To function correctly, several other packages are needed, incuding 
 
 ## 🔥 Usage
 
