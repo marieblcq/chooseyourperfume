@@ -91,15 +91,26 @@ st.write("**Your picks:**", ", ".join(selected_scents) if selected_scents else "
 # --- Step 2: Weight Sliders ---
 weights = {}
 if selected_scents:
-    st.subheader("2. Rate how much you love each note")
+    st.subheader("2. How much do you love each scent?")
+    
+    slider_labels = {
+        0.1: "It's okay",
+        0.3: "I like",
+        0.7: "I love",
+        1.0: "I adore",
+        1.5: "I only want this scent!"
+    }
+    slider_steps = list(slider_labels.keys())
+
     for note in selected_scents:
-        weights[note] = st.slider(
-            label=note,
-            min_value=0.0,
-            max_value=1.0,
-            value=0.5,
+        val = st.select_slider(
+            f"{note}",
+            options=slider_steps,
+            value=0.7,
+            format_func=lambda x: slider_labels[x],
             key=f"w_{note}"
         )
+        weights[note] = val
 else:
     weights = {}
 
