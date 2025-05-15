@@ -109,19 +109,24 @@ if selected_scents:
 # --- Step 3: Generate Recommendations ---
 if st.button("🔍 Generate Recommendations"):
     if not selected_scents:
-        st.warning("Please pick at least one note before generating.")
+        st.warning("🚨 Please pick at least one note before generating recommendations.")
     else:
+        with st.spinner("🔬 Finding your perfect perfumes..."):
+            top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
+        
+        cols = [c for c in ['perfumename', 'brand', 'score'] if c in top.columns]
+
         col_perf, col_mol = st.columns(2, gap="large")
 
         with col_perf:
             st.subheader("⚭ Perfume Matches")
-            top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
-            cols = [c for c in ['PerfumeName', 'brand', 'score'] if c in top.columns]
-            st.dataframe(top[cols].head(5), use_container_width=True)
+            if top.empty:
+                st.warning("🚫 No matching perfumes found. Try selecting different notes or adjusting weights.")
+            else:
+                st.dataframe(top[cols].head(5), use_container_width=True)
 
         with col_mol:
             st.subheader("⌬ Explore Molecules Based on Your Preferences")
-
             for scent in selected_scents:
                 if scent not in scent_to_smiles_df.columns:
                     continue
@@ -177,3 +182,9 @@ if st.button("🔍 Generate Recommendations"):
                         html_content += "</div>"
 
                         st.markdown(html_content, unsafe_allow_html=True)
+
+        # Optional: Show Debug Information in the App
+        with st.expander("🛠️ Debug Info", expanded=False):
+            st.write("Selected Scents:", selected_scents)
+            st.write("Weights:", weights)
+            st.write("Top Results DataFrame:", top.head())
