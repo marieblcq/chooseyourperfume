@@ -1,7 +1,5 @@
-![Project Logo](assets/logo.png)
-
 <p align="center">
-  <img src="assets/logo.png" alt="Project Logo" width="200"/>
+  <img src="assets/logo.png" alt="Project Logo" width="400"/>
 </p>
 
 ![Coverage Status](assets/coverage-badge.svg)
@@ -17,7 +15,7 @@ A python🐍 package to help you find your perfect match, ***Choose your perfume
 
 ## 📝 Package description
 
-Developped in 2️⃣0️⃣2️⃣5️⃣ by EPFL students, ***Choose Your perfume*** is a pip-installable python🐍 package which offers perfume recommendations based on the chosen preferences. It regroups a surprising variety of scents🌸 to ensure the highest level of customer satisfaction. Not only can the client choose his prefered scents, he can also use rate his fondness for each of them, in order to receive the most appropriate recommendations based on his wishes. Furthermore, in addition to the main goal of the package which is giving perfume recommendations, ***Choose Your Perfume*** offers an educational🔍 description of the molecules the client is looking for, including their names, chemical formulas and lewis drawings, in the hopes of developing in a client an interest for chemistry🧪.
+Developped in 2️⃣0️⃣2️⃣5️⃣ by EPFL students, ***Choose Your perfume*** is a pip-installable python🐍 package which offers perfume recommendations based on the chosen preferences. It regroups a surprising variety of scents🌸 to ensure the highest level of customer satisfaction. Not only can the client choose his prefered scents, he can also use rate his fondness for each of them, in order to receive the most appropriate recommendations based on his wishes. Furthermore, in addition to the main goal of the package which is giving perfume recommendations, ***Choose Your Perfume*** offers an educational🔍 description of the molecules the client is looking for, including their names, chemical formulas and structures, in the hopes of developing in a client an interest for chemistry🧪.
 
 ## 👩‍💻 Installation
 
