@@ -17,7 +17,15 @@ def load_data():
     perfume_df = load_extended_perfume_set()                # Dataset 3
     scent_to_smiles_df = load_smiles_odors()                # Dataset 4
 
+    # Get the complete list of scent notes used in the app
+    from .dataset import scent_categories
+    all_scent_notes = [note.strip().lower() for notes in scent_categories.values() for note in notes]
+
+    # Enrich with scent presence columns if they don't exist already
+    perfume_to_scent_df = enrich_with_scent_columns(perfume_to_scent_df, all_scent_notes, text_column='description')
+
     return perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df
+
 
 def render_molecule(smiles):
     mol = Chem.MolFromSmiles(smiles)
@@ -92,7 +100,6 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=Non
 
 
 # Get molecules (SMILES) related to selected scent categories
-import pandas as pd
 
 def get_molecules_for_scents(selected_scents, scent_to_smiles_df):
     # Ensure selected_scents are valid column names
@@ -106,3 +113,19 @@ def get_molecules_for_scents(selected_scents, scent_to_smiles_df):
     filtered = scent_to_smiles_df[mask]
 
     return filtered
+
+def enrich_with_scent_columns(perfume_df, scent_list, text_column='description'):
+    # Normalize column names
+    perfume_df.columns = perfume_df.columns.str.strip().str.lower()
+
+    # Ensure description column exists
+    if text_column not in perfume_df.columns:
+        print(f"Column '{text_column}' not found in perfume DataFrame.")
+        return perfume_df
+
+    for scent in scent_list:
+        scent_clean = scent.strip().lower()
+        perfume_df[scent_clean] = perfume_df[text_column].str.contains(scent, case=False, na=False).astype(int)
+
+    return perfume_df  # Final correct return
+
