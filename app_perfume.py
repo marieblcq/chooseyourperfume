@@ -85,7 +85,9 @@ for idx, cat in enumerate(categories):
         )
 
 # Show current picks
-selected_scents = [note for cat in categories for note in st.session_state.get(f"sel_{cat}", [])]
+selected_scents = list(set(
+    note for cat in categories for note in st.session_state.get(f"sel_{cat}", [])
+))
 st.write("**Your picks:**", ", ".join(selected_scents) if selected_scents else "None yet.")
 
 # --- Step 2: Weight Sliders ---
@@ -102,13 +104,13 @@ if selected_scents:
     }
     slider_steps = list(slider_labels.keys())
 
-    for note in selected_scents:
+    for note in set(selected_scents):  # Ensure each scent appears only once
         val = st.select_slider(
             f"{note}",
             options=slider_steps,
             value=0.7,
             format_func=lambda x: slider_labels[x],
-            key=f"w_{note}"
+            key=f"w_{note}"  # Now this key is unique per scent
         )
         weights[note] = val
 else:
@@ -119,34 +121,76 @@ if st.button("🔍 Generate Recommendations"):
     if not selected_scents:
         st.warning("Please pick at least one note before generating.")
     else:
-        # Results panes
-        col_mol, col_perf = st.columns(2, gap="large")
-        with col_mol:
-            st.subheader("Molecules ⌬")
-            # Build a flat table: each selected scent paired with its molecules
-            mol_entries = []
-            for scent in selected_scents:
-                if scent not in scent_to_smiles_df.columns:
-                    continue
-                # select rows where the scent flag is 1
-                subset = scent_to_smiles_df[scent_to_smiles_df[scent] == 1]
-                for smi in subset['nonStereoSMILES']:
-                    img_html = 'Invalid SMILES'
-                    m = Chem.MolFromSmiles(smi)
-                    if m:
-                        img = Draw.MolToImage(m, (80,80))
-                        buf = io.BytesIO(); img.save(buf, 'PNG')
-                        img_html = f'<img src="data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}" />'
-                    mol_entries.append({'Odor Note': scent, 'SMILES': smi, 'Structure': img_html})
-            mol_df = pd.DataFrame(mol_entries)
-            if mol_df.empty:
-                st.write("No molecules found for selected scents.")
-            else:
-                st.write(mol_df.to_html(escape=False), unsafe_allow_html=True)
+        # Results Panes: Perfume Recommendations First
+        col_perf, col_mol = st.columns(2, gap="large")
+
         with col_perf:
-            st.subheader("Perfume Matches ⚭")
+            st.subheader("⚭ Perfume Matches")
             top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
-            cols = [c for c in ['PerfumeName','brand','score'] if c in top.columns]
+            cols = [c for c in ['PerfumeName', 'brand', 'score'] if c in top.columns]
             st.dataframe(top[cols].head(5), use_container_width=True)
 
+        # Now show Molecules based on Weights after Recommendations
+    with col_mol:
+        st.subheader("⌬ Explore Molecules Based on Your Preferences")
 
+        for scent in selected_scents:
+            if scent not in scent_to_smiles_df.columns:
+                continue
+
+            with st.expander(f"Molecules carrying the scent note '{scent}'", expanded=False):
+                subset = scent_to_smiles_df[scent_to_smiles_df[scent] == 1]
+                mol_entries = []
+                for smi in subset['nonStereoSMILES']:
+                    m = Chem.MolFromSmiles(smi)
+                    if m:
+                        img = Draw.MolToImage(m, (120, 120))  # Adjust size as needed
+                        buf = io.BytesIO(); img.save(buf, 'PNG')
+                        img_base64 = base64.b64encode(buf.getvalue()).decode()
+                        mol_entries.append({'img_base64': img_base64})
+
+                        
+                if not mol_entries:
+                    st.write("No molecules found for this scent.")
+                else:
+                    html_content = """
+                    <style>
+                    /* Custom scrollbar styling */
+                    .scroll-container {
+                        display: flex;
+                        flex-wrap: nowrap;  /* Force horizontal layout */
+                        overflow-x: auto;
+                        gap: 20px;
+                        padding: 10px;
+                        white-space: nowrap;
+                        scrollbar-width: thin;
+                        scrollbar-color: #c2b280 #f4eddd;
+                    }
+
+                    .scroll-container::-webkit-scrollbar {
+                        height: 8px;
+                    }
+
+                    .scroll-container::-webkit-scrollbar-track {
+                        background: #f4eddd;
+                        border-radius: 4px;
+                    }
+
+                    .scroll-container::-webkit-scrollbar-thumb {
+                        background-color: #c2b280;
+                        border-radius: 4px;
+                    }
+                    </style>
+
+                    <div class="scroll-container">
+                    """
+                    for mol in mol_entries:
+                        html_content += f"""
+                    <div style="text-align: center; min-width: 140px;">
+                        <img src="data:image/png;base64,{mol['img_base64']}" 
+                            style="border-radius:8px; box-shadow:0px 4px 6px rgba(0,0,0,0.1);"/>
+                    </div>
+                    """
+                    html_content += "</div>"
+
+                    st.markdown(html_content, unsafe_allow_html=True)

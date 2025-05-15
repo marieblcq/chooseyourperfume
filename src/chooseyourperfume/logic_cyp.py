@@ -29,7 +29,7 @@ def ask_preferences():
     return scent_categories 
 
 
-def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df):
+def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=None):
     perfume_scores = perfume_to_scent_df.copy()
     perfume_scores["score"] = 0
 
