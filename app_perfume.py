@@ -123,7 +123,21 @@ if st.button("🔍 Generate Recommendations"):
             if top.empty:
                 st.warning("🚫 No matching perfumes found. Try selecting different notes or adjusting weights.")
             else:
-                st.dataframe(top[cols].head(5), use_container_width=True)
+                for idx, row in top.head(5).iterrows():
+                    perfume_name = row.get('Name', 'Unknown')
+                    brand = perfume_name.split()[-1] if ' ' in perfume_name else 'Unknown'
+                    score = row.get('Rating Value', 0)
+                    description = row.get('description', 'No description available.')  # If not present, remove this line
+                    ingredients = row.get('Main Accords', 'No ingredients listed.')
+
+                    st.markdown(f"""
+                        <div style="padding:10px; border-bottom:1px solid #ddd;">
+                        <h4>{perfume_name} <small style="color:gray;">by {brand}</small></h4>
+                        <p><strong>Score:</strong> {score}</p>
+                        <p><strong>Description:</strong> {description}</p>
+                        <p><strong>Ingredients:</strong> {ingredients}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
         with col_mol:
             st.subheader("⌬ Explore Molecules Based on Your Preferences")
