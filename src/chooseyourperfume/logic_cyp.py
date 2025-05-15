@@ -56,7 +56,9 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=Non
 
     if not merge_key:
         raise KeyError("No common column found between perfume_scores and perfume_df to merge on.")
-
+    print("perfume_scores columns:", perfume_scores.columns)
+    print("perfume_df columns:", perfume_df.columns)
+    
     # Merge to add perfume metadata
     result = perfume_scores.merge(perfume_df, on=merge_key, how="left")
 
