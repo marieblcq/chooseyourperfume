@@ -29,18 +29,23 @@ def ask_preferences():
     return scent_categories 
 
 
-def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df):
+def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=None):
     perfume_scores = perfume_to_scent_df.copy()
     perfume_scores["score"] = 0
+
+    # Ensure weights is properly initialized
+    if weights is None:
+        weights = {scent: 1.0 for scent in selected_scents}
 
     # Use only scents that exist in the scoring DataFrame
     valid_scents = [scent for scent in selected_scents if scent in perfume_scores.columns]
     if not valid_scents:
         return pd.DataFrame(columns=["score"])
 
-    # Add up the score for each valid scent
+    # Apply weights to each scent before summing
     for scent in valid_scents:
-        perfume_scores["score"] += perfume_scores[scent]
+        weight = weights.get(scent, 1.0)
+        perfume_scores["score"] += perfume_scores[scent] * weight
 
     # Detect the shared key column for merge
     merge_key = None
@@ -51,7 +56,9 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df):
 
     if not merge_key:
         raise KeyError("No common column found between perfume_scores and perfume_df to merge on.")
-
+    print("perfume_scores columns:", perfume_scores.columns)
+    print("perfume_df columns:", perfume_df.columns)
+    
     # Merge to add perfume metadata
     result = perfume_scores.merge(perfume_df, on=merge_key, how="left")
 
@@ -59,6 +66,7 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df):
     result = result.sort_values(by="score", ascending=False)
 
     return result
+
 
 
 # Get molecules (SMILES) related to selected scent categories

@@ -147,6 +147,7 @@ if st.button("🔍 Generate Recommendations"):
             st.subheader("Perfume Matches ⚭")
             top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
             cols = [c for c in ['PerfumeName','brand','score'] if c in top.columns]
-            st.dataframe(top[cols].head(5), use_container_width=True)
+            st.write("Debug: Top perfumes returned:")
+            st.write(top.head(10))
 
 
