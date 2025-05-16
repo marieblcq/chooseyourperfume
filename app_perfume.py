@@ -3,7 +3,6 @@ import io, random, base64
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-from PIL import Image
 
 from src.chooseyourperfume.logic_cyp import (
     load_data, ask_preferences, score_perfumes, get_molecules_for_scents
@@ -53,7 +52,6 @@ st.header("1. Tell us about the scents you love")
 scent_dict = ask_preferences()
 categories = list(scent_dict.keys())
 
-# Surprise Me Button
 if st.button("🎲 Surprise Me!"):
     all_notes = [note for subs in scent_dict.values() for note in subs]
     picks = random.sample(all_notes, min(3, len(all_notes)))
@@ -61,11 +59,9 @@ if st.button("🎲 Surprise Me!"):
         st.session_state[f"sel_{cat}"] = [n for n in picks if n in scent_dict[cat]]
     st.success("✨ Surprise picks loaded! Scroll down to see and adjust.")
 
-# Initialize session state for selections
 for cat in categories:
     st.session_state.setdefault(f"sel_{cat}", [])
 
-# Two-column expanders for categories
 col_a, col_b = st.columns(2, gap="medium")
 for idx, cat in enumerate(categories):
     target = col_a if idx % 2 == 0 else col_b
@@ -76,7 +72,6 @@ for idx, cat in enumerate(categories):
             key=f"sel_{cat}"
         )
 
-# Show current picks (unique)
 selected_scents = list(set(
     note for cat in categories for note in st.session_state.get(f"sel_{cat}", [])
 ))
@@ -86,14 +81,7 @@ st.write("**Your picks:**", ", ".join(selected_scents) if selected_scents else "
 weights = {}
 if selected_scents:
     st.subheader("2. How much do you love each scent?")
-
-    slider_labels = {
-        0.1: "It's okay",
-        0.3: "I like",
-        0.7: "I love",
-        1.0: "I adore",
-        1.5: "I only want this scent!"
-    }
+    slider_labels = {0.1: "It's okay", 0.3: "I like", 0.7: "I love", 1.0: "I adore", 1.5: "Obsessed!"}
     slider_steps = list(slider_labels.keys())
 
     for note in selected_scents:
@@ -113,8 +101,6 @@ if st.button("🔍 Generate Recommendations"):
     else:
         with st.spinner("🔬 Finding your perfect perfumes..."):
             top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
-        
-        cols = [c for c in ['perfumename', 'brand', 'score'] if c in top.columns]
 
         col_perf, col_mol = st.columns(2, gap="large")
 
@@ -124,20 +110,38 @@ if st.button("🔍 Generate Recommendations"):
                 st.warning("🚫 No matching perfumes found. Try selecting different notes or adjusting weights.")
             else:
                 for idx, row in top.head(5).iterrows():
-                    perfume_name = row.get('Name', 'Unknown')
-                    brand = perfume_name.split()[-1] if ' ' in perfume_name else 'Unknown'
-                    score = row.get('Rating Value', 0)
-                    description = row.get('description', 'No description available.')  # If not present, remove this line
-                    ingredients = row.get('Main Accords', 'No ingredients listed.')
+                    perfume_name = row.get('name', 'Unknown')
+                    brand = row.get('brand', 'Unknown')
+                    score = row.get('score', 0)
+                    description = row.get('description_x') or row.get('description_y') or 'No description available.'
+                    ingredients = row.get('notes')
 
-                    st.markdown(f"""
-                        <div style="padding:10px; border-bottom:1px solid #ddd;">
-                        <h4>{perfume_name} <small style="color:gray;">by {brand}</small></h4>
-                        <p><strong>Score:</strong> {score}</p>
-                        <p><strong>Description:</strong> {description}</p>
-                        <p><strong>Ingredients:</strong> {ingredients}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    if pd.isna(description) or str(description).strip() == '':
+                        description = 'No description available.'
+                    if pd.isna(ingredients) or str(ingredients).strip() == '':
+                        ingredients = 'No ingredients listed.'
+                    else:
+                        if isinstance(ingredients, str):
+                            ingredients = ingredients.replace('[', '').replace(']', '').replace("'", '').replace(';', ',').strip()
+
+                    image_url = row.get('image url')
+                    with st.container():
+                        left, right = st.columns([1, 3])
+                        if pd.notna(image_url) and isinstance(image_url, str) and image_url.strip():
+                            left.image(image_url.strip(), width=70)
+                        with right:
+                            st.markdown(f"""
+                                <h4>{perfume_name} <small style="color:gray;">by {brand}</small></h4>
+                                <p><strong>Score:</strong> {score}</p>
+                            """, unsafe_allow_html=True)
+
+                            if len(description) > 300:
+                                with st.expander(" Full Description"):
+                                    st.markdown(f"<p>{description}</p>", unsafe_allow_html=True)
+                            else:
+                                st.markdown(f"<p><strong>Description:</strong> {description}</p>", unsafe_allow_html=True)
+
+                            st.markdown(f"<p><strong>Ingredients:</strong> {ingredients}</p>", unsafe_allow_html=True)
 
         with col_mol:
             st.subheader("⌬ Explore Molecules Based on Your Preferences")
@@ -148,7 +152,7 @@ if st.button("🔍 Generate Recommendations"):
                 with st.expander(f"Molecules carrying the scent note '{scent}'", expanded=False):
                     subset = scent_to_smiles_df[scent_to_smiles_df[scent] == 1]
                     mol_entries = []
-                    for smi in subset['nonStereoSMILES']:
+                    for smi in subset['nonstereosmiles']:
                         m = Chem.MolFromSmiles(smi)
                         if m:
                             img = Draw.MolToImage(m, (120, 120))
@@ -161,43 +165,22 @@ if st.button("🔍 Generate Recommendations"):
                     else:
                         html_content = """
                         <style>
-                        .scroll-container {
-                            display: flex;
-                            flex-wrap: nowrap;
-                            overflow-x: auto;
-                            gap: 20px;
-                            padding: 10px;
-                            white-space: nowrap;
-                            scrollbar-width: thin;
-                            scrollbar-color: #c2b280 #f4eddd;
-                        }
-                        .scroll-container::-webkit-scrollbar {
-                            height: 8px;
-                        }
-                        .scroll-container::-webkit-scrollbar-track {
-                            background: #f4eddd;
-                            border-radius: 4px;
-                        }
-                        .scroll-container::-webkit-scrollbar-thumb {
-                            background-color: #c2b280;
-                            border-radius: 4px;
-                        }
+                        .scroll-container { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 20px; padding: 10px; white-space: nowrap; scrollbar-width: thin; scrollbar-color: #c2b280 #f4eddd; }
+                        .scroll-container::-webkit-scrollbar { height: 8px; }
+                        .scroll-container::-webkit-scrollbar-track { background: #f4eddd; border-radius: 4px; }
+                        .scroll-container::-webkit-scrollbar-thumb { background-color: #c2b280; border-radius: 4px; }
                         </style>
-
                         <div class="scroll-container">
                         """
                         for mol in mol_entries:
                             html_content += f"""
                         <div style="text-align: center; min-width: 140px;">
-                            <img src="data:image/png;base64,{mol['img_base64']}" 
-                                style="border-radius:8px; box-shadow:0px 4px 6px rgba(0,0,0,0.1);"/>
+                            <img src="data:image/png;base64,{mol['img_base64']}" style="border-radius:8px; box-shadow:0px 4px 6px rgba(0,0,0,0.1);"/>
                         </div>
                         """
                         html_content += "</div>"
-
                         st.markdown(html_content, unsafe_allow_html=True)
 
-        # Optional: Show Debug Information in the App
         with st.expander("🛠️ Debug Info", expanded=False):
             st.write("Selected Scents:", selected_scents)
             st.write("Weights:", weights)
