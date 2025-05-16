@@ -31,16 +31,16 @@ def load_csv(path, sep=",", encoding=None):
 #test
 
 def load_smiles_odors(): # Dataset 1 - molecules in SMILE format + corresponding odors with various descriptors
-    return load_csv("data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv")
+    return load_csv("../../data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv")
 
 def load_perfume_descriptions():  # Dataset 2 - Commercial descriptions + image + notes
-    return load_csv("data/datasets/final_perfume_data.csv") 
+    return load_csv("../../data/datasets/final_perfume_data.csv") 
 
 def load_fragrantica_data():  # Dataset 3 - General Fragrantica set
-    return load_csv("data/datasets/fra_cleaned.csv", sep=";")
+    return load_csv("../../data/datasets/fra_cleaned.csv", sep=";")
 
 def load_extended_perfume_set():  # Dataset 4 - Additional structured perfume records
-    return load_csv("data/datasets/fra_perfumes.csv")
+    return load_csv("../../data/datasets/fra_perfumes.csv")
 
 # This block runs only if the script is executed directly
 if __name__ == "__main__":
