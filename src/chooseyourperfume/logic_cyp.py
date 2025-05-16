@@ -1,4 +1,3 @@
-# logic_cyp.py
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
@@ -13,12 +12,22 @@ from .dataset import (
 )
 
 def load_data():
-    perfume_to_scent_df = load_perfume_descriptions()       # Dataset 1
-    perfume_clean_df = load_fragrantica_data()              # Dataset 2
-    perfume_df = load_extended_perfume_set()                # Dataset 3
-    scent_to_smiles_df = load_smiles_odors()                # Dataset 4
+    perfume_to_scent_df = load_perfume_descriptions()
+    perfume_clean_df = load_fragrantica_data()
+    perfume_df = load_extended_perfume_set()
+    scent_to_smiles_df = load_smiles_odors()
 
-    from .dataset import scent_categories
+    # Normalize all column names before doing anything
+    perfume_to_scent_df.columns = perfume_to_scent_df.columns.str.strip().str.lower()
+    perfume_clean_df.columns = perfume_clean_df.columns.str.strip().str.lower()
+    perfume_df.columns = perfume_df.columns.str.strip().str.lower()
+    scent_to_smiles_df.columns = scent_to_smiles_df.columns.str.strip().str.lower()
+
+    # Debug - Check Columns and Sample Data
+    print("perfume_df columns:", perfume_df.columns)
+    print("Sample descriptions:\n", perfume_df[['description']].head() if 'description' in perfume_df.columns else "No 'description' column found.")
+    print("Sample main accords:\n", perfume_df[['main accords']].head() if 'main accords' in perfume_df.columns else "No 'main accords' column found.")
+
     all_scent_notes = [note.strip().lower() for notes in scent_categories.values() for note in notes]
     perfume_to_scent_df = enrich_with_scent_columns(perfume_to_scent_df, all_scent_notes, text_column='description')
 
@@ -44,8 +53,8 @@ def split_name_brand(name_string):
     return perfume_name, brand
 
 def enrich_with_scent_columns(perfume_df, scent_list, text_column='description'):
-    perfume_df.columns = perfume_df.columns.str.strip().str.lower()
     if text_column not in perfume_df.columns:
+        print(f"⚠️ Text column '{text_column}' not found in perfume_df columns: {perfume_df.columns}")
         return perfume_df
     for scent in scent_list:
         scent_clean = scent.strip().lower()
@@ -79,12 +88,20 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=Non
 
     possible_keys = ['name', 'perfumename', 'perfume_name']
     merge_key = next((key for key in possible_keys if key in perfume_scores.columns and key in perfume_df.columns), None)
-
+    print("Selected merge key:", merge_key)
     if not merge_key:
         st.error("❌ Merge key missing. Check that perfume names are consistently labeled in datasets.")
         raise KeyError("No valid merge key found.")
 
+    perfume_scores[merge_key] = perfume_scores[merge_key].astype(str).str.strip().str.lower()
+    perfume_df[merge_key] = perfume_df[merge_key].astype(str).str.strip().str.lower()
+
+    # Debug: Verify sample keys after normalization
+    print("Sample Keys in perfume_scores (after cleanup):", perfume_scores[merge_key].dropna().unique()[:5])
+    print("Sample Keys in perfume_df (after cleanup):", perfume_df[merge_key].dropna().unique()[:5])
+
     result = perfume_scores.merge(perfume_df, on=merge_key, how="left")
+    print("Merge result sample:\n", result.head())
     result = result.sort_values(by="score", ascending=False)
 
     return result
