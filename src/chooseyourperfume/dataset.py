@@ -1,10 +1,11 @@
 import os
 import pandas as pd
 
+"""
 def load_csv(path, sep=",", encoding=None):
-    """
+    
     Generic loader for CSV files.
-
+    
     Args:
         path (str): File path to CSV.
         sep (str): Separator used in the file.
@@ -12,7 +13,7 @@ def load_csv(path, sep=",", encoding=None):
 
     Returns:
         pd.DataFrame: the loaded dataset as DataFrame.
-    """
+    
     if not os.path.isfile(path):
         raise FileNotFoundError(f"The specified file was not found: {path}")
     try: #first try UTF-8 encoder
@@ -26,21 +27,49 @@ def load_csv(path, sep=",", encoding=None):
             except UnicodeDecodeError:
                 continue
         raise  # re-raise the last exception if all encodings fail
+"""
+import os
+import pandas as pd
+
+def load_csv(path, sep=",", encoding=None):
+    # Ensure the path is absolute relative to the dataset.py file location
+    if not os.path.isabs(path):
+        base_dir = os.path.dirname(__file__)
+        path = os.path.abspath(os.path.join(base_dir, path))
+
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"The specified file was not found: {path}")
+
+    try:
+        return pd.read_csv(path, sep=sep, encoding=encoding or "utf-8")
+    except UnicodeDecodeError:
+        # Fallback encodings if UTF-8 fails
+        for enc in ["ISO-8859-1", "cp1252"]:
+            try:
+                return pd.read_csv(path, sep=sep, encoding=enc)
+            except UnicodeDecodeError:
+                continue
+        raise
+
 
 # Loading each dataset 
 #test
 
 def load_smiles_odors(): # Dataset 1 - molecules in SMILE format + corresponding odors with various descriptors
-    return load_csv("../../data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv")
+    return load_csv(os.path.join("..", "..", "data", "datasets", "Multi-Labelled_Smiles_Odors_dataset.csv"))
+    #return load_csv("data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv")
 
 def load_perfume_descriptions():  # Dataset 2 - Commercial descriptions + image + notes
-    return load_csv("../../data/datasets/final_perfume_data.csv") 
+    return load_csv(os.path.join("..", "..", "data", "datasets", "final_perfume_data.csv"))
+    #return load_csv("data/datasets/final_perfume_data.csv") 
 
 def load_fragrantica_data():  # Dataset 3 - General Fragrantica set
-    return load_csv("../../data/datasets/fra_cleaned.csv", sep=";")
+    return load_csv(os.path.join("..", "..", "data", "datasets", "fra_cleaned.csv"), sep=";")
+    #return load_csv("data/datasets/fra_cleaned.csv", sep=";")
 
 def load_extended_perfume_set():  # Dataset 4 - Additional structured perfume records
-    return load_csv("../../data/datasets/fra_perfumes.csv")
+    return load_csv(os.path.join("..", "..", "data", "datasets", "fra_perfumes.csv"))
+    #return load_csv("data/datasets/fra_perfumes.csv")
 
 # This block runs only if the script is executed directly
 if __name__ == "__main__":
