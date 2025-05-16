@@ -180,8 +180,3 @@ if st.button("🔍 Generate Recommendations"):
                         """
                         html_content += "</div>"
                         st.markdown(html_content, unsafe_allow_html=True)
-
-        with st.expander("🛠️ Debug Info", expanded=False):
-            st.write("Selected Scents:", selected_scents)
-            st.write("Weights:", weights)
-            st.write("Top Results DataFrame:", top.head())
