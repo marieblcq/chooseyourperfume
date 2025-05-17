@@ -67,7 +67,7 @@ for idx, cat in enumerate(categories):
     target = col_a if idx % 2 == 0 else col_b
     with target.expander(cat, expanded=False):
         st.multiselect(
-            "",
+            " ",
             scent_dict[cat],
             key=f"sel_{cat}"
         )
@@ -76,6 +76,15 @@ selected_scents = list(set(
     note for cat in categories for note in st.session_state.get(f"sel_{cat}", [])
 ))
 st.write("**Your picks:**", ", ".join(selected_scents) if selected_scents else "None yet.")
+
+# --- Step 1.5: Gender Preference ---
+st.subheader("Optional: Do you have a gender preference for your perfume?")
+gender_preference = st.radio(
+    "Choose Gender:",
+    options=["Any", "Women", "Men", "Unisex"],
+    index=0,
+    horizontal=True
+)
 
 # --- Step 2: Weight Sliders ---
 weights = {}
@@ -100,7 +109,7 @@ if st.button("🔍 Generate Recommendations"):
         st.warning("🚨 Please pick at least one note before generating recommendations.")
     else:
         with st.spinner("🔬 Finding your perfect perfumes..."):
-            top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
+            top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights, gender_preference, perfume_clean_df)
 
         col_perf, col_mol = st.columns(2, gap="large")
 

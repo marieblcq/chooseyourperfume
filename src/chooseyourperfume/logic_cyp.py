@@ -16,13 +16,11 @@ def load_data():
     perfume_df = load_extended_perfume_set()
     scent_to_smiles_df = load_smiles_odors()
 
-    # Normalize all column names before doing anything
     perfume_to_scent_df.columns = perfume_to_scent_df.columns.str.strip().str.lower()
     perfume_clean_df.columns = perfume_clean_df.columns.str.strip().str.lower()
     perfume_df.columns = perfume_df.columns.str.strip().str.lower()
     scent_to_smiles_df.columns = scent_to_smiles_df.columns.str.strip().str.lower()
 
-    # Debug - Check Columns and Sample Data
     print("perfume_df columns:", perfume_df.columns)
     print("Sample descriptions:\n", perfume_df[['description']].head() if 'description' in perfume_df.columns else "No 'description' column found.")
     print("Sample main accords:\n", perfume_df[['main accords']].head() if 'main accords' in perfume_df.columns else "No 'main accords' column found.")
@@ -60,14 +58,15 @@ def enrich_with_scent_columns(perfume_df, scent_list, text_column='description')
         perfume_df[scent_clean] = perfume_df[text_column].str.contains(scent, case=False, na=False).astype(int)
     return perfume_df
 
-def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=None):
-
+def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=None, gender_preference="Any", perfume_clean_df=None):
     perfume_scores = perfume_to_scent_df.copy()
     perfume_scores["score"] = 0.0
 
     perfume_scores.columns = perfume_scores.columns.str.strip().str.lower()
     perfume_df.columns = perfume_df.columns.str.strip().str.lower()
     selected_scents = [scent.strip().lower() for scent in selected_scents]
+
+    st.write("📊 Gender preference selected:", gender_preference)
 
     if weights is None:
         weights = {scent: 1.0 for scent in selected_scents}
@@ -94,14 +93,26 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=Non
     perfume_scores[merge_key] = perfume_scores[merge_key].astype(str).str.strip().str.lower()
     perfume_df[merge_key] = perfume_df[merge_key].astype(str).str.strip().str.lower()
 
-    # Debug: Verify sample keys after normalization
-    print("Sample Keys in perfume_scores (after cleanup):", perfume_scores[merge_key].dropna().unique()[:5])
-    print("Sample Keys in perfume_df (after cleanup):", perfume_df[merge_key].dropna().unique()[:5])
-
     result = perfume_scores.merge(perfume_df, on=merge_key, how="left")
-    print("Merge result sample:\n", result.head())
-    result = result.sort_values(by="score", ascending=False)
 
+    if 'gender' in result.columns:
+        st.write("👀 Unique gender values before filtering:", result['gender'].unique())
+
+    if perfume_clean_df is not None and 'gender' not in result.columns:
+        perfume_clean_df.columns = perfume_clean_df.columns.str.strip().str.lower()
+        gender_info = perfume_clean_df[['name', 'gender']].dropna()
+        gender_info['name'] = gender_info['name'].str.strip().str.lower()
+        result = result.merge(gender_info, on='name', how='left', suffixes=('', '_gender'))
+
+    if gender_preference != "Any" and 'gender' in result.columns:
+        gender_filter = gender_preference.lower()
+        result['gender'] = result['gender'].str.strip().str.lower()
+        result = result[result['gender'] == gender_filter]
+        st.write(f"✅ Number of results after filtering for '{gender_filter}':", len(result))
+
+    st.write("🔎 Final result preview:", result.head())
+
+    result = result.sort_values(by="score", ascending=False)
     return result
 
 def get_molecules_for_scents(selected_scents, scent_to_smiles_df):
