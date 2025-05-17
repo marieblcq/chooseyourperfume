@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-def load_csv(path, sep=None, encoding=None):
+def load_csv(path, sep=",", encoding=None):
     """
 
     Generic loader for CSV files.
