@@ -8,13 +8,11 @@ from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# --- Import Dataset Loader ---
-from dataset import load_smiles_odors
 
-# --- Load Data ---
+from .dataset import load_smiles_odors
+
 data = load_smiles_odors()
 
-# --- Canonicalize SMILES ---
 def canonicalize_smiles(smiles):
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
