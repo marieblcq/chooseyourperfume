@@ -1,4 +1,3 @@
-# --- Import Libraries ---
 import pandas as pd
 import numpy as np
 from rdkit import Chem
@@ -7,9 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
-from .dataset import load_smiles_odors
+from .dataset import load_smiles_odors, scent_categories
 
 data = load_smiles_odors()
 
@@ -24,27 +21,6 @@ data = data.dropna(subset=['canonical_smiles'])
 
 # --- Create Mol Objects Column ---
 data['mol'] = data['canonical_smiles'].apply(Chem.MolFromSmiles)
-
-# --- Define Scent Categories ---
-scent_categories = {
-    "Floral": ['floral', 'jasmin', 'rose', 'violet', 'lily', 'hyacinth', 'lavender', 'muguet', 'chamomile', 'orangeflower', 'geranium'],
-    "Fruity": ['fruity', 'apple', 'apricot', 'banana', 'berry', 'black currant', 'citrus', 'grape', 'grapefruit', 'melon', 'orange', 'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'tropical'],
-    "Vegetal / Herbal": ['green', 'grassy', 'herbal', 'leafy', 'celery', 'cucumber', 'hay', 'hawthorn', 'weedy', 'vegetable'],
-    "Sweet / Gourmand": ['sweet', 'creamy', 'coconut', 'vanilla', 'chocolate', 'caramellic', 'buttery', 'honey', 'almond', 'milky'],
-    "Nutty / Seed": ['nutty', 'hazelnut', 'almond'],
-    "Lactonic / Milky": ['lactonic', 'dairy', 'milky', 'creamy'],
-    "Spicy / Aromatic": ['spicy', 'clove', 'cinnamon', 'anisic', 'mint', 'coumarinic', 'camphoreous'],
-    "Fresh / Volatile": ['fresh', 'cooling', 'ethereal', 'ozone', 'clean', 'citrus'],
-    "Woody / Resinous": ['woody', 'sandalwood', 'cedar', 'pine', 'cortex', 'amber', 'vetiver'],
-    "Animalic / Meaty": ['animal', 'meaty', 'beefy', 'musk', 'leathery', 'sweaty', 'savory'],
-    "Smoky / Roasted / Burnt": ['smoky', 'burnt', 'roasted', 'cooked', 'popcorn', 'coffee'],
-    "Fermented / Cheesy": ['cheesy', 'fermented', 'dairy'],
-    "Sulfurous / Allium-like": ['sulfurous', 'garlic', 'onion', 'alliaceous', 'gassy', 'musty', 'cabbage', 'radish'],
-    "Alcohol / Solvent": ['alcoholic', 'brandy', 'winey', 'cognac', 'solvent', 'rummy'],
-    "Earthy / Mineral / Metallic": ['earthy', 'mushroom', 'metallic', 'oily', 'powdery'],
-    "Chemical / Medicinal": ['medicinal', 'ketonic', 'phenolic', 'soapy', 'sharp', 'bitter'],
-    "Dry / Bitter / Neutral": ['dry', 'bitter', 'natural', 'odorless']
-}
 
 # --- Reverse Mapping Scent to Category ---
 scent_to_category = {}
@@ -79,8 +55,6 @@ def assign_primary_category(descriptors):
 
 data['primary_category'] = data['descriptors'].apply(assign_primary_category)
 data = data.dropna(subset=['primary_category'])  # Completely remove molecules with no assigned category.
-
-data['primary_category'] = data['descriptors'].apply(assign_primary_category)
 
 # --- Generate Morgan Fingerprints ---
 morgan_gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=1024)
