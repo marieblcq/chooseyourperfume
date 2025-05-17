@@ -67,7 +67,7 @@ for idx, cat in enumerate(categories):
     target = col_a if idx % 2 == 0 else col_b
     with target.expander(cat, expanded=False):
         st.multiselect(
-            cat,
+            "",
             scent_dict[cat],
             key=f"sel_{cat}"
         )

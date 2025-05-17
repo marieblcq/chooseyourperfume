@@ -1,10 +1,9 @@
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-
+import streamlit as st
 from .dataset import scent_categories
 from .dataset import (
-    load_csv,
     load_perfume_descriptions,
     load_fragrantica_data,
     load_extended_perfume_set,
@@ -62,7 +61,6 @@ def enrich_with_scent_columns(perfume_df, scent_list, text_column='description')
     return perfume_df
 
 def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=None):
-    import streamlit as st
 
     perfume_scores = perfume_to_scent_df.copy()
     perfume_scores["score"] = 0.0
