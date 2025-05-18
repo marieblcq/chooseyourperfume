@@ -1,6 +1,7 @@
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
+from rdkit.Chem import AllChem, DataStructs
 import streamlit as st
 from .dataset import scent_categories
 from .dataset import (
@@ -110,3 +111,22 @@ def get_molecules_for_scents(selected_scents, scent_to_smiles_df):
         return pd.DataFrame(columns=scent_to_smiles_df.columns)
     mask = scent_to_smiles_df[valid_scents].sum(axis=1) > 0
     return scent_to_smiles_df[mask]
+
+
+def avg_similarity(smiles_list, radius: int = 2, n_bits: int = 1024) -> float | None:
+    """
+    Compute the average pairwise Tanimoto similarity for a list of SMILES.
+    Returns None if fewer than 2 molecules are given.
+    """
+    fps = []
+    for smi in smiles_list:
+        m = Chem.MolFromSmiles(smi)
+        if m:
+            fps.append(AllChem.GetMorganFingerprintAsBitVect(m, radius, n_bits))
+    if len(fps) < 2:
+        return None
+    sims = [
+        DataStructs.TanimotoSimilarity(fps[i], fps[j])
+        for i in range(len(fps)) for j in range(i+1, len(fps))
+    ]
+    return sum(sims) / len(sims)

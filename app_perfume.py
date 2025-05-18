@@ -3,9 +3,10 @@ import io, random, base64
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
+from rdkit.Chem import AllChem, DataStructs
 
 from src.chooseyourperfume.logic_cyp import (
-    load_data, ask_preferences, score_perfumes, get_molecules_for_scents
+    load_data, ask_preferences, score_perfumes, get_molecules_for_scents, avg_similarity
 )
 
 # --- Config & CSS ---
@@ -151,6 +152,7 @@ if st.button("🔍 Generate Recommendations"):
 
                 with st.expander(f"Molecules carrying the scent note '{scent}'", expanded=False):
                     subset = scent_to_smiles_df[scent_to_smiles_df[scent] == 1]
+                    smiles_list=subset["nonstereosmiles"].tolist()
                     mol_entries = []
                     for smi in subset['nonstereosmiles']:
                         m = Chem.MolFromSmiles(smi)
@@ -180,3 +182,43 @@ if st.button("🔍 Generate Recommendations"):
                         """
                         html_content += "</div>"
                         st.markdown(html_content, unsafe_allow_html=True)
+
+                        avg_sim=avg_similarity(smiles_list)
+                        if avg_sim is not None:
+                            st.markdown(f"**Average Tanimoto similarity:** {avg_sim:.2f}")
+                        else:
+                            st.markdown("**Average Tanimoto similarity:** N/A (need ≥2 molecules)")
+
+            
+            st.markdown(
+    f"""
+    <details style="
+        background-color: #ffffff;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 8px;
+        border: 1px solid #ddd;
+    ">
+      <summary style="
+        cursor: pointer;
+        font-weight: 600;
+        outline: none;
+      ">
+        🔍 What is Tanimoto similarity?
+      </summary>
+      <div style="margin-top: 8px; line-height: 1.5;">
+        Imagine each molecule gets its own little “barcode” of bits representing its structure.<br>
+        The <strong>Tanimoto similarity</strong> is simply the fraction of bars two barcodes share in common:
+        <ul>
+          <li><strong>1.0</strong> means they match perfectly: every feature is shared.</li>
+          <li><strong>0.0</strong> means they have nothing in common.</li>
+          <li>Values in between tell you how much overlap there is.</li>
+        </ul>
+        So when you see <strong>0.7</strong>, it means 70% of the structural features are identical—a quick way  
+        to judge how chemically alike two scent molecules truly are.
+      </div>
+    </details>
+    """,
+    unsafe_allow_html=True,
+)
+
