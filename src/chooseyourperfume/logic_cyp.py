@@ -93,22 +93,26 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=Non
     perfume_scores[merge_key] = perfume_scores[merge_key].astype(str).str.strip().str.lower()
     perfume_df[merge_key] = perfume_df[merge_key].astype(str).str.strip().str.lower()
 
+    st.write("perfume_df['gender'] unique values:", perfume_df['gender'].dropna().unique())
+    st.write("perfume_df['name'] sample values:", perfume_df['name'].head())
+    st.write("perfume_scores['name'] sample values:", perfume_scores['name'].head())
     result = perfume_scores.merge(perfume_df, on=merge_key, how="left")
-
+    st.write("Result DataFrame head after merge:", result.head())
     if 'gender' in result.columns:
         st.write("👀 Unique gender values before filtering:", result['gender'].unique())
 
-    if perfume_clean_df is not None and 'gender' not in result.columns:
-        perfume_clean_df.columns = perfume_clean_df.columns.str.strip().str.lower()
-        gender_info = perfume_clean_df[['name', 'gender']].dropna()
-        gender_info['name'] = gender_info['name'].str.strip().str.lower()
-        result = result.merge(gender_info, on='name', how='left', suffixes=('', '_gender'))
+    if gender_preference.lower() != "any" and 'gender' in result.columns:
+        result['gender'] = result['gender'].astype(str).str.strip().str.lower()
+        gender_filter = gender_preference.strip().lower()
 
-    if gender_preference != "Any" and 'gender' in result.columns:
-        gender_filter = gender_preference.lower()
-        result['gender'] = result['gender'].str.strip().str.lower()
-        result = result[result['gender'] == gender_filter]
-        st.write(f"✅ Number of results after filtering for '{gender_filter}':", len(result))
+        if gender_filter == "men":
+            result = result[result['gender'] == "for men"]
+        elif gender_filter == "women":
+            result = result[result['gender'] == "for women"]
+        elif gender_filter == "unisex":
+            result = result[result['gender'] == "for women and men"]
+
+        st.write(f"✅ Number of results after filtering for '{gender_preference}':", len(result))
 
     st.write("🔎 Final result preview:", result.head())
 
