@@ -15,7 +15,7 @@ A python🐍 package to help you find your perfect match, ***Choose your perfume
 
 ## 📝 Package description
 
-Developped in 2️⃣0️⃣2️⃣5️⃣ by EPFL students, ***Choose Your perfume*** is a pip-installable python🐍 package which offers perfume recommendations based on the chosen preferences. It regroups a surprising variety of scents🌸 to ensure the highest level of customer satisfaction. Not only can the client choose his prefered scents, he can also use rate his fondness for each of them, in order to receive the most appropriate recommendations based on his wishes. Furthermore, in addition to the main goal of the package which is giving perfume recommendations, ***Choose Your Perfume*** offers an educational🔍 description of the molecules the client is looking for, including their names, chemical formulas and structures, in the hopes of developing in a client an interest for chemistry🧪.
+Developped in 2️⃣0️⃣2️⃣5️⃣ by EPFL students, ***Choose Your perfume*** is a pip-installable python🐍 package which offers perfume recommendations based on the chosen preferences. It regroups a surprising variety of scents🌸 to ensure the highest level of customer satisfaction. Not only can the client choose his prefered scents, he can also use rate his fondness for each of them, in order to receive the most appropriate recommendations based on his wishes. Furthermore, in addition to the main goal⚽ of the package which is giving perfume recommendations, ***Choose Your Perfume*** offers an educational🔍 description of the molecules the client is looking for, including their structures and an indication of how all these structures are similar to each other, in the hopes of developing in the client an interest for chemistry🧪.
 
 ## 👩‍💻 Installation
 
@@ -36,7 +36,7 @@ As this package is pip-installable, chooseyourperfume can be installed like so:
 ```python
 git clone https://github.com/marieblcq/chooseyourperfume.git
 cd chooseyourperfume
-pip install .
+pip install -e ".[test,doc]"
 ```
 
 Or via pip and github as well:
@@ -47,7 +47,7 @@ pip install git+https://github.com/marieblcq/chooseyourperfume.git
 
 ## 🔥 Usage
 
-Now that the environment is activated and the package is installed all that is needed is to run the streamlit app to access the ***Choose Your Perfume*** interface:
+Now that the environment is activated and the package is installed all that is needed is to run the streamlit app to access the ***Choose Your Perfume***🌸 interface:
 
 ```python
 streamlit run app_perfume.py
@@ -55,47 +55,38 @@ streamlit run app_perfume.py
 
 If you want to receive perfume recommendations without using the interface, no problem ! Here is how the package can be used directly in python🐍 code:
 
-*j'attend que la main function qui donne les recommandations soient finalisée avant de la mettre ici, début de l'exemple*
 ```python
-from mypackage import main_func
+from src.chooseyourperfume.logic_cyp import load_data, score_perfumes
 
-# One line to rule them all
-result = main_func(data)
-```
-The aim of our project is to study the chemistry of perfume!
+#first, the datasets need to be loaded
+perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df = load_data()
 
-This usage example shows how to quickly leverage the package's main functionality with just one line of code (or a few lines of code). 
-After importing the `main_func` (to be renamed by you), you simply pass in your `data` and get the `result` (this is just an example, your package might have other inputs and outputs). 
-Short and sweet, but the real power lies in the detailed documentation.
-*fin de l'exemple* 
+#select scents and weights (optional, to be chosen from: 0.1, 0.3, 0.7, 1.0, 1.5 0.1 being 'its okay' and 1.5 being 'obsessed!')
+selected_scents = ['lily', 'lemon', 'mint']
+weights = {'lily' : 1.0, 'lemon' : 0.7, 'mint' : 0.3}
 
-## 👩‍💻 Installation
+#to obtain a result
+results = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
 
-*j'ai deja fait ca normalement, je le garde au cas ou, ca commence ici*
-Create a new environment, you may also give the environment a different name. 
-
-```
-conda create -n chooseyourperfume python=3.10 
+#to see the result
+print(results.head())
 ```
 
-```
-conda activate chooseyourperfume
-(conda_env) $ pip install .
-```
+Some python🐍 scripts can be condensed into a single line, as you can see here, it is not the case. This code however still manages to show how to quickly leverage the package's main functionality in just a few lines!
 
-If you need jupyter lab, install it 
+Step by step of what this function does💡:
+First, it imports from the logic_cyp python🐍 code the main functions needed to obtain a perfume recommendation, which is the purpose of the app
+Second step, the data which has been imported needs to be loaded
+Third step, the scents🌸 and their weights needs to be selected, this is the part of the code which can be changed to obtain varying perfume recommendations. The scents however have to be chosen from the existing list of scents used in the project.
+Final step is to run the code and print the result📝, and hopefully obtain a perfume match which satisfies the demand!
 
-```
-(chooseyourperfume) $ pip install jupyterlab
-```
-*et ca finit la* 
+In short, this example demonstrates how to use the core recommendation engine programmatically to get a ranked list of perfumes based on your preferred scent🌸 notes.
 
 ## 🛠️ Development installation
 
-*enfaite de ce que j'ai compris cette partie ne concerne pas les users mais ce sont des indications pour nous, dans les exemples personne n'a gardé cette partie vu qu'elle ne sert pas aux users*
-Initialize Git (only for the first time). 
+If you want to modify this code and add in your own touch, here are a few guidelines to help!
 
-Note: You should have create an empty repository on `https://github.com:mariebilocq/chooseyourperfume`.
+Initialize Git (only for the first time). 
 
 ```
 git init
@@ -109,18 +100,20 @@ git push -u origin main
 
 Then add and commit changes as usual. 
 
-To install the package, run
+The package should have already been installed by following the instructions above, but here is a reminder just in case (to be run in bash terminal):
 
 ```
-(chooseyourperfume) $ pip install -e ".[test,doc]"
+(perfume) $ pip install -e ".[test,doc]"
 ```
 
 ### Run tests and coverage
 
 ```
-(conda_env) $ pip install tox
-(conda_env) $ tox
+(perfume) $ pip install tox
+(perfume) $ tox
 ```
+
+Note: perfume is the example name chosen in this README for the new environment created, it can be modified to your liking.
 
 
 
