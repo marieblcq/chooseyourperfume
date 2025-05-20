@@ -119,11 +119,25 @@ if st.button("🔍 Generate Recommendations"):
                 st.warning("🚫 No matching perfumes found. Try selecting different notes or adjusting weights.")
             else:
                 for idx, row in top.head(5).iterrows():
-                    perfume_name = row.get('name', 'Unknown')
-                    brand = row.get('brand', 'Unknown')
+                    def split_name_brand(name):
+                        if not isinstance(name, str):
+                            return "Unknown", "Unknown"
+                        name = name.strip()
+                        parts = name.split("for")
+                        if len(parts) >= 2:
+                            perfume_name = parts[0].strip()
+                            brand = "for " + parts[1].strip()
+                        else:
+                            perfume_name = name
+                            brand = "Unknown"
+                        return perfume_name, brand
+
+                    perfume_name_raw = row.get('name_x') or row.get('name_y') or row.get('name') or 'Unknown'
+                    perfume_name, brand = split_name_brand(perfume_name_raw)
+
                     score = row.get('score', 0)
                     description = row.get('description_x') or row.get('description_y') or 'No description available.'
-                    ingredients = row.get('notes')
+                    ingredients = row.get('main accords_x') or row.get('main accords_y') or 'No ingredients listed.'
 
                     if pd.isna(description) or str(description).strip() == '':
                         description = 'No description available.'
