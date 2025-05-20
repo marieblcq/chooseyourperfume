@@ -61,7 +61,7 @@ from src.chooseyourperfume.logic_cyp import load_data, score_perfumes
 #first, the datasets need to be loaded
 perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df = load_data()
 
-#select scents and weights (optional, to be chosen from: 0.1, 0.3, 0.7, 1.0, 1.5 0.1 being 'its okay' and 1.5 being 'obsessed!')
+#select scents and weights (optional, to be chosen from: 0.1, 0.3, 0.7, 1.0, 1.5, 0.1 being 'its okay' and 1.5 being 'obsessed!')
 selected_scents = ['lily', 'lemon', 'mint']
 weights = {'lily' : 1.0, 'lemon' : 0.7, 'mint' : 0.3}
 
