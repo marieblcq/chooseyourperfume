@@ -1,32 +1,21 @@
-import os
+import os 
 import pandas as pd
+
 def load_csv(path, sep=",", encoding=None):
-    """
-    Load a CSV file and return a Dataframe with fallback encodings.
-    Args:
-        path (str): Path to CSV file.
-        sep (str): Separator used in the file, defautlt is ','.
-        encoding (str): File encoding.
-    Returns:
-        pd.DataFrame: the loaded dataset as DataFrame.
-    """
     if not os.path.isfile(path):
         raise FileNotFoundError(f"The specified file was not found: {path}")
-    try: #First try UTF-8 encoder
-        df=pd.read_csv(path, sep=sep, encoding=encoding or "utf-8")
-        return df
+    try:
+        return pd.read_csv(path, sep=sep, encoding=encoding or "utf-8")
     except UnicodeDecodeError:
-        # Try fallback encodings if utf8 fails
         for enc in ["ISO-8859-1", "cp1252"]:
             try:
                 return pd.read_csv(path, sep=sep, encoding=enc)
             except UnicodeDecodeError:
                 continue
-        raise  # re-raise the last exception if all encodings fail
-
-# LOADING EACH DATASET 
+        raise
 
 def load_smiles_odors():
+<<<<<<< HEAD
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "datasets", "Multi-Labelled_Smiles_Odors_dataset.csv"))
     return load_csv(path)
 
@@ -56,8 +45,27 @@ def load_extended_perfume_set():
 #def load_extended_perfume_set():
 #    """Dataset 4 - Additional structured perfume records."""
 #    return load_csv("data/datasets/fra_perfumes.csv")
+=======
+    return load_csv("data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv")
 
+def load_perfume_descriptions():
+    return load_csv("data/datasets/final_perfume_data.csv") 
 
+def load_fragrantica_data():
+    return load_csv("data/datasets/fra_cleaned.csv", sep=";")
+
+def load_extended_perfume_set():
+    return load_csv("data/datasets/fra_perfumes.csv")
+>>>>>>> gender
+
+def get_scent_categories():
+    df = load_smiles_odors()
+    scent_notes = df.columns[2:].str.strip().str.lower().tolist()
+    print("Scent Notes Available in Dataset:")
+    for note in sorted(scent_notes):
+        print(f"- {note}")
+
+<<<<<<< HEAD
 #DICTIONNARY 
 """ 
 Defines scent categories and associated descriptors used for data classification and filtering based on the dataset available.
@@ -73,6 +81,9 @@ if __name__ == "__main__":
         print(f"- {note}")
 
 scent_categories = {
+=======
+    return {
+>>>>>>> gender
     "Floral": ['floral', 'jasmin', 'rose', 'violet', 'lily', 'hyacinth', 'lavender', 'muguet', 'chamomile', 'orangeflower', 'geranium'],
     "Fruity": ['fruity', 'apple', 'apricot', 'banana', 'berry', 'black currant', 'grape', 'grapefruit', 'melon', 'orange', 'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'tropical', 'cherry', 'lemon', 'juicy', 'ripe', 'fruit skin', 'sour', 'citrus', 'bergamot'],
     "Vegetal / Herbal": ['green', 'grassy', 'herbal', 'leafy', 'celery', 'cucumber', 'hay', 'hawthorn', 'weedy', 'vegetable', 'potato', 'tomato'],
