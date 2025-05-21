@@ -3,13 +3,31 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 from rdkit.Chem import AllChem, DataStructs
 import streamlit as st
-from .dataset import scent_categories
-from .dataset import (
-    load_perfume_descriptions,
-    load_fragrantica_data,
-    load_extended_perfume_set,
-    load_smiles_odors
-)
+try:
+    # For notebook or script execution
+    from dataset import scent_categories
+    from dataset import (
+        load_perfume_descriptions,
+        load_fragrantica_data,
+        load_extended_perfume_set,
+        load_smiles_odors
+    )
+except ImportError:
+    # For package context (e.g. when run from Streamlit)
+    from .dataset import scent_categories
+    from .dataset import (
+        load_perfume_descriptions,
+        load_fragrantica_data,
+        load_extended_perfume_set,
+        load_smiles_odors
+    )
+#from .dataset import scent_categories
+#from .dataset import (
+#    load_perfume_descriptions,
+#    load_fragrantica_data,
+#    load_extended_perfume_set,
+#    load_smiles_odors
+#)
 
 def load_data():
     perfume_to_scent_df = load_perfume_descriptions()
