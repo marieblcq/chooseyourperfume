@@ -58,8 +58,12 @@ for cat in categories:
 col_a, col_b = st.columns(2)
 for idx, cat in enumerate(categories):
     target = col_a if idx % 2 == 0 else col_b
-    with target.expander(cat):
-        st.multiselect("", scent_dict[cat], key=f"sel_{cat}")
+    with target.expander(cat, expanded=False):
+        st.multiselect(
+            " ",
+            scent_dict[cat],
+            key=f"sel_{cat}"
+        )
 
 selected_scents = list(set(note for cat in categories for note in st.session_state.get(f"sel_{cat}", [])))
 st.write("**Your picks:**", ", ".join(selected_scents) if selected_scents else "None yet.")
