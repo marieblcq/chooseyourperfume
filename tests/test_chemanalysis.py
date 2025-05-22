@@ -2,6 +2,7 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import DataStructs
 
+
 from chooseyourperfume.chem_analysis import (
     canonicalize_smiles,
     generate_fingerprint,
@@ -10,7 +11,6 @@ from chooseyourperfume.chem_analysis import (
     run_pipeline
 )
 
-import subprocess
 
 # Test 1: SMILES Canonicalization Valid Case
 def test_canonicalize_smiles_valid():
