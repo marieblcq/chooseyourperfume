@@ -83,6 +83,8 @@ if selected_scents:
         )
 
 # --- Step 3: Generate Recommendations ---
+# --- Step 3: Generate Recommendations ---
+# --- Step 3: Generate Recommendations ---
 if st.button("🔍 Generate Recommendations"):
     if not selected_scents:
         st.warning("🚨 Please pick at least one note.")
@@ -90,14 +92,58 @@ if st.button("🔍 Generate Recommendations"):
         with st.spinner("🔬 Finding your perfect perfumes..."):
             top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
 
-        col_perf, col_mol = st.columns(2, gap="large")
+        st.session_state["top_matches"] = top
+        st.session_state["show_more"] = False  # Reset when new results generated
 
-        with col_perf:
-            st.subheader("⚭ Perfume Matches")
-            if top.empty:
-                st.warning("🚫 No matches found.")
-            else:
-                for _, row in top.head(5).iterrows():
+# --- Display Recommendations ---
+if "top_matches" in st.session_state:
+    top = st.session_state["top_matches"]
+
+    col_perf, col_mol = st.columns(2, gap="large")
+
+    with col_perf:
+        st.subheader("⚭ Perfume Matches")
+
+        if top.empty:
+            st.warning("🚫 No matches found.")
+        else:
+            # Top 5 matches
+            for _, row in top.head(5).iterrows():
+                perfume_name = str(row.get('name_x') or row.get('name_y') or row.get('name', 'Unknown')).title()
+                brand = row.get('brand_x') or row.get('brand', 'Unknown')
+                score = row.get('score', 0)
+                description = row.get('description_x') or row.get('description_y') or 'No description available.'
+                notes = row.get('main accords_x') or row.get('notes') or row.get('main accords_y') or 'No ingredients listed.'
+                image_url = row.get('image url_x') or row.get('image url')
+
+                if isinstance(notes, str):
+                    notes = notes.replace('[', '').replace(']', '').replace(';', ',').replace("'", '').strip()
+
+                with st.container():
+                    left, right = st.columns([1, 3])
+                    if image_url and isinstance(image_url, str):
+                        left.image(image_url.strip(), width=70)
+                    with right:
+                        st.markdown(f"<h4>{perfume_name} <small style='color:gray;'>by {brand}</small></h4><p><strong>Score:</strong> {score:.2f}%</p>", unsafe_allow_html=True)
+                        st.markdown(f"<p><strong>Ingredients:</strong> {notes}</p>", unsafe_allow_html=True)
+                    max_chars = 150
+                    if len(description) > max_chars:
+                        short_desc = description[:max_chars].rsplit(' ', 1)[0] + "..."
+                        st.markdown(f"<p><strong>Description:</strong> {short_desc}</p>", unsafe_allow_html=True)
+                        with st.expander("Read more"):
+                            st.markdown(f"<p>{description}</p>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<p><strong>Description:</strong> {description}</p>", unsafe_allow_html=True)
+
+            # Show 'See more' button if there are additional matches
+            if len(top) > 5 and not st.session_state.get("show_more", False):
+                if st.button("📖 See more recommendations"):
+                    st.session_state["show_more"] = True
+
+            # Show more matches if requested
+            if st.session_state.get("show_more", False):
+                st.markdown("### More matches just for you:")
+                for _, row in top.iloc[5:12].iterrows():
                     perfume_name = str(row.get('name_x') or row.get('name_y') or row.get('name', 'Unknown')).title()
                     brand = row.get('brand_x') or row.get('brand', 'Unknown')
                     score = row.get('score', 0)
@@ -123,6 +169,9 @@ if st.button("🔍 Generate Recommendations"):
                                 st.markdown(f"<p>{description}</p>", unsafe_allow_html=True)
                         else:
                             st.markdown(f"<p><strong>Description:</strong> {description}</p>", unsafe_allow_html=True)
+
+
+            
 
         st.markdown(f"<p><strong>Ingredients:</strong> {notes}</p>", unsafe_allow_html=True)
         with col_mol:
