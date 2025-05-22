@@ -98,6 +98,7 @@ if st.button("🔍 Generate Recommendations"):
 # --- Display Recommendations ---
 if "top_matches" in st.session_state:
     top = st.session_state["top_matches"]
+    top = top[top["score"] > 0]  # Supprimer les parfums à 0%
 
     col_perf, col_mol = st.columns(2, gap="large")
 
@@ -173,13 +174,12 @@ if "top_matches" in st.session_state:
 
             
 
-        st.markdown(f"<p><strong>Ingredients:</strong> {notes}</p>", unsafe_allow_html=True)
         with col_mol:
             st.subheader("⌬ Explore Molecules Based on Your Preferences")
             for scent in selected_scents:
                 if scent not in scent_to_smiles_df.columns:
                     continue
-                with st.expander(f"Molecules for scent '{scent}'"):
+                with st.expander(f"Molecules carrying the scent note '{scent}'"):
                     subset = scent_to_smiles_df[scent_to_smiles_df[scent] == 1]
                     smiles_list = subset["nonstereosmiles"].tolist()
                     mol_entries = []
@@ -204,7 +204,7 @@ if "top_matches" in st.session_state:
 
             st.markdown("""
             <details style="background-color:#fff;padding:12px;border-radius:8px;margin-top:8px;border:1px solid #ddd;">
-              <summary style="cursor:pointer;font-weight:600;">🔍 What is Tanimoto similarity?</summary>
+              <summary style="cursor:pointer;font-weight:600;"> What is Tanimoto similarity?</summary>
               <div style="margin-top:8px;line-height:1.5;">
                 Tanimoto similarity compares two molecular fingerprints—it's like comparing barcodes of chemical features.
                 <ul>
@@ -218,13 +218,13 @@ if "top_matches" in st.session_state:
 
             st.markdown("""
         <details style="background-color:#fff;padding:12px;border-radius:8px;margin-top:8px;border:1px solid #ddd;">
-        <summary style="cursor:pointer;font-weight:600;">💡 How are your perfume matches scored?</summary>
+        <summary style="cursor:pointer;font-weight:600;"> How are your perfume matches scored?</summary>
         <div style="margin-top:8px;line-height:1.5;">
             Your perfume recommendations are scored based on how well each scent in a perfume matches your personal preferences.
-            You selected the notes you like and used sliders to show how much you love each one — from "just okay" to "obsessed."
+            You selected the notes you like and used sliders to show how much you love each one: from "just okay" to "obsessed."
             <br><br>
             Each perfume earns points for containing your selected notes, and the more important a note is to you (based on the slider), the more it contributes.
-            We total these points and calculate a <strong>percentage match</strong> — so a perfume that includes all your top notes could score close to <strong>100%</strong>,
+            We total these points and calculate a <strong>percentage match</strong>, so a perfume that includes all your top notes could score close to <strong>100%</strong>,
             while one that only matches a few will score lower. The higher the percentage, the better the match for your personal scent profile.
         </div>
         </details>
