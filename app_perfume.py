@@ -3,7 +3,6 @@ import io, random, base64
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-from rdkit.Chem import AllChem, DataStructs
 
 from src.chooseyourperfume.logic_cyp import (
     load_data, ask_preferences, score_perfumes, get_molecules_for_scents, avg_similarity
@@ -12,25 +11,22 @@ from src.chooseyourperfume.logic_cyp import (
 # --- Config & CSS ---
 st.set_page_config(page_title="Choose Your Perfume", layout="wide")
 
-st.markdown(
-    """
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet">
-    <style>
-        .stApp { background-color: #F4EDDE !important; }
-        html, body, [class*="css"] {
-            font-family: 'Cormorant Garamond', serif !important;
-            color: #4C3A32 !important;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Cormorant Garamond', serif !important;
-            color: #4C3A32 !important;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&display=swap" rel="stylesheet">
+<style>
+    .stApp { background-color: #F4EDDE !important; }
+    html, body, [class*="css"] {
+        font-family: 'Cormorant Garamond', serif !important;
+        color: #4C3A32 !important;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Cormorant Garamond', serif !important;
+        color: #4C3A32 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# --- Data Loading ---
+# --- Data ---
 @st.cache_data
 def cached_load_data():
     return load_data()
@@ -42,28 +38,24 @@ col1, col2 = st.columns([1, 4])
 with col1:
     st.image("assets/logo.png", width=180)
 with col2:
-    st.markdown(
-        "<h1> ⋆ CHOOSE YOUR PERFUME ⋆ </h1><p style='color:gray;'>Find your signature scent</p>",
-        unsafe_allow_html=True
-    )
+    st.markdown("<h1> ⋆ CHOOSE YOUR PERFUME ⋆ </h1><p style='color:gray;'>Find your signature scent</p>", unsafe_allow_html=True)
 
-# --- Step 1: Preferences Selection ---
+# --- Step 1: Preferences ---
 st.header("1. Tell us about the scents you love")
-
 scent_dict = ask_preferences()
 categories = list(scent_dict.keys())
 
 if st.button("🎲 Surprise Me!"):
-    all_notes = [note for subs in scent_dict.values() for note in subs]
+    all_notes = [note for sublist in scent_dict.values() for note in sublist]
     picks = random.sample(all_notes, min(3, len(all_notes)))
     for cat in categories:
         st.session_state[f"sel_{cat}"] = [n for n in picks if n in scent_dict[cat]]
-    st.success("✨ Surprise picks loaded! Scroll down to see and adjust.")
+    st.success("✨ Surprise picks loaded!")
 
 for cat in categories:
     st.session_state.setdefault(f"sel_{cat}", [])
 
-col_a, col_b = st.columns(2, gap="medium")
+col_a, col_b = st.columns(2)
 for idx, cat in enumerate(categories):
     target = col_a if idx % 2 == 0 else col_b
     with target.expander(cat, expanded=False):
@@ -73,32 +65,27 @@ for idx, cat in enumerate(categories):
             key=f"sel_{cat}"
         )
 
-selected_scents = list(set(
-    note for cat in categories for note in st.session_state.get(f"sel_{cat}", [])
-))
+selected_scents = list(set(note for cat in categories for note in st.session_state.get(f"sel_{cat}", [])))
 st.write("**Your picks:**", ", ".join(selected_scents) if selected_scents else "None yet.")
 
-# --- Step 2: Weight Sliders ---
+# --- Step 2: Weights ---
 weights = {}
 if selected_scents:
     st.subheader("2. How much do you love each scent?")
     slider_labels = {0.1: "It's okay", 0.3: "I like", 0.7: "I love", 1.0: "I adore", 1.5: "Obsessed!"}
-    slider_steps = list(slider_labels.keys())
-
     for note in selected_scents:
-        val = st.select_slider(
+        weights[note] = st.select_slider(
             f"{note}",
-            options=slider_steps,
+            options=list(slider_labels.keys()),
             value=0.7,
             format_func=lambda x: slider_labels[x],
             key=f"w_{note}"
         )
-        weights[note] = val
 
 # --- Step 3: Generate Recommendations ---
 if st.button("🔍 Generate Recommendations"):
     if not selected_scents:
-        st.warning("🚨 Please pick at least one note before generating recommendations.")
+        st.warning("🚨 Please pick at least one note.")
     else:
         with st.spinner("🔬 Finding your perfect perfumes..."):
             top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
@@ -108,116 +95,74 @@ if st.button("🔍 Generate Recommendations"):
         with col_perf:
             st.subheader("⚭ Perfume Matches")
             if top.empty:
-                st.warning("🚫 No matching perfumes found. Try selecting different notes or adjusting weights.")
+                st.warning("🚫 No matches found.")
             else:
-                for idx, row in top.head(5).iterrows():
-                    perfume_name = row.get('name', 'Unknown')
-                    brand = row.get('brand', 'Unknown')
+                for _, row in top.head(5).iterrows():
+                    perfume_name = str(row.get('name_x') or row.get('name_y') or row.get('name', 'Unknown')).title()
+                    brand = row.get('brand_x') or row.get('brand', 'Unknown')
                     score = row.get('score', 0)
                     description = row.get('description_x') or row.get('description_y') or 'No description available.'
-                    ingredients = row.get('notes')
+                    notes = row.get('main accords_x') or row.get('notes') or row.get('main accords_y') or 'No ingredients listed.'
+                    image_url = row.get('image url_x') or row.get('image url')
 
-                    if pd.isna(description) or str(description).strip() == '':
-                        description = 'No description available.'
-                    if pd.isna(ingredients) or str(ingredients).strip() == '':
-                        ingredients = 'No ingredients listed.'
-                    else:
-                        if isinstance(ingredients, str):
-                            ingredients = ingredients.replace('[', '').replace(']', '').replace("'", '').replace(';', ',').strip()
+                    if isinstance(notes, str):
+                        notes = notes.replace('[', '').replace(']', '').replace(';', ',').replace("'", '').strip()
 
-                    image_url = row.get('image url')
                     with st.container():
                         left, right = st.columns([1, 3])
-                        if pd.notna(image_url) and isinstance(image_url, str) and image_url.strip():
+                        if image_url and isinstance(image_url, str):
                             left.image(image_url.strip(), width=70)
                         with right:
-                            st.markdown(f"""
-                                <h4>{perfume_name} <small style="color:gray;">by {brand}</small></h4>
-                                <p><strong>Score:</strong> {score}</p>
-                            """, unsafe_allow_html=True)
+                            st.markdown(f"<h4>{perfume_name} <small style='color:gray;'>by {brand}</small></h4><p><strong>Score:</strong> {score:.2f}%</p>", unsafe_allow_html=True)
+                            st.markdown(f"<p><strong>Ingredients:</strong> {notes}</p>", unsafe_allow_html=True)
+                        max_chars = 150
+                        if len(description) > max_chars:
+                            short_desc = description[:max_chars].rsplit(' ', 1)[0] + "..."
+                            st.markdown(f"<p><strong>Description:</strong> {short_desc}</p>", unsafe_allow_html=True)
+                            with st.expander("Read more"):
+                                st.markdown(f"<p>{description}</p>", unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"<p><strong>Description:</strong> {description}</p>", unsafe_allow_html=True)
 
-                            if len(description) > 300:
-                                with st.expander(" Full Description"):
-                                    st.markdown(f"<p>{description}</p>", unsafe_allow_html=True)
-                            else:
-                                st.markdown(f"<p><strong>Description:</strong> {description}</p>", unsafe_allow_html=True)
-
-                            st.markdown(f"<p><strong>Ingredients:</strong> {ingredients}</p>", unsafe_allow_html=True)
-
+        st.markdown(f"<p><strong>Ingredients:</strong> {notes}</p>", unsafe_allow_html=True)
         with col_mol:
             st.subheader("⌬ Explore Molecules Based on Your Preferences")
             for scent in selected_scents:
                 if scent not in scent_to_smiles_df.columns:
                     continue
-
-                with st.expander(f"Molecules carrying the scent note '{scent}'", expanded=False):
+                with st.expander(f"Molecules for scent '{scent}'"):
                     subset = scent_to_smiles_df[scent_to_smiles_df[scent] == 1]
-                    smiles_list=subset["nonstereosmiles"].tolist()
+                    smiles_list = subset["nonstereosmiles"].tolist()
                     mol_entries = []
-                    for smi in subset['nonstereosmiles']:
+                    for smi in smiles_list:
                         m = Chem.MolFromSmiles(smi)
                         if m:
                             img = Draw.MolToImage(m, (120, 120))
                             buf = io.BytesIO(); img.save(buf, 'PNG')
                             img_base64 = base64.b64encode(buf.getvalue()).decode()
-                            mol_entries.append({'img_base64': img_base64})
+                            mol_entries.append(f'<img src="data:image/png;base64,{img_base64}" style="border-radius:8px; box-shadow:0px 4px 6px rgba(0,0,0,0.1);"/>')
 
-                    if not mol_entries:
-                        st.write("No molecules found for this scent.")
-                    else:
-                        html_content = """
-                        <style>
-                        .scroll-container { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 20px; padding: 10px; white-space: nowrap; scrollbar-width: thin; scrollbar-color: #c2b280 #f4eddd; }
-                        .scroll-container::-webkit-scrollbar { height: 8px; }
-                        .scroll-container::-webkit-scrollbar-track { background: #f4eddd; border-radius: 4px; }
-                        .scroll-container::-webkit-scrollbar-thumb { background-color: #c2b280; border-radius: 4px; }
-                        </style>
-                        <div class="scroll-container">
-                        """
-                        for mol in mol_entries:
-                            html_content += f"""
-                        <div style="text-align: center; min-width: 140px;">
-                            <img src="data:image/png;base64,{mol['img_base64']}" style="border-radius:8px; box-shadow:0px 4px 6px rgba(0,0,0,0.1);"/>
+                    if mol_entries:
+                        st.markdown(f"""
+                        <div class="scroll-container" style="display:flex;overflow-x:auto;gap:20px;padding:10px;">
+                        {''.join(f'<div style="min-width:140px;text-align:center;">{mol}</div>' for mol in mol_entries)}
                         </div>
-                        """
-                        html_content += "</div>"
-                        st.markdown(html_content, unsafe_allow_html=True)
+                        """, unsafe_allow_html=True)
+                        avg_sim = avg_similarity(smiles_list)
+                        st.markdown(f"**Average Tanimoto similarity:** {avg_sim:.2f}" if avg_sim else "**Average Tanimoto similarity:** N/A (need ≥2 molecules)")
+                    else:
+                        st.write("No molecules found for this scent.")
 
-                        avg_sim=avg_similarity(smiles_list)
-                        if avg_sim is not None:
-                            st.markdown(f"**Average Tanimoto similarity:** {avg_sim:.2f}")
-                        else:
-                            st.markdown("**Average Tanimoto similarity:** N/A (need ≥2 molecules)")
-
-            
-            st.markdown(
-    f"""
-    <details style="
-        background-color: #ffffff;
-        padding: 12px;
-        border-radius: 8px;
-        margin-top: 8px;
-        border: 1px solid #ddd;
-    ">
-      <summary style="
-        cursor: pointer;
-        font-weight: 600;
-        outline: none;
-      ">
-        🔍 What is Tanimoto similarity?
-      </summary>
-      <div style="margin-top: 8px; line-height: 1.5;">
-        Imagine each molecule gets its own little “barcode” of bits representing its structure.<br>
-        The <strong>Tanimoto similarity</strong> is simply the fraction of bars two barcodes share in common:
-        <ul>
-          <li><strong>1.0</strong> means they match perfectly: every feature is shared.</li>
-          <li><strong>0.0</strong> means they have nothing in common.</li>
-          <li>Values in between tell you how much overlap there is.</li>
-        </ul>
-        So when you see <strong>0.7</strong>, it means 70% of the structural features are identical—a quick way  
-        to judge how chemically alike two scent molecules truly are.
-      </div>
-    </details>
-    """,
-    unsafe_allow_html=True,
-)
+            st.markdown("""
+            <details style="background-color:#fff;padding:12px;border-radius:8px;margin-top:8px;border:1px solid #ddd;">
+              <summary style="cursor:pointer;font-weight:600;">🔍 What is Tanimoto similarity?</summary>
+              <div style="margin-top:8px;line-height:1.5;">
+                Tanimoto similarity compares two molecular fingerprints—it's like comparing barcodes of chemical features.
+                <ul>
+                  <li><strong>1.0</strong> → perfect match</li>
+                  <li><strong>0.0</strong> → no shared features</li>
+                </ul>
+                Use it to gauge how alike molecules really are!
+              </div>
+            </details>
+            """, unsafe_allow_html=True)
