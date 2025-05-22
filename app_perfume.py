@@ -166,3 +166,16 @@ if st.button("🔍 Generate Recommendations"):
               </div>
             </details>
             """, unsafe_allow_html=True)
+
+            st.markdown("""
+            <details style="background-color:#fff;padding:12px;border-radius:8px;margin-top:8px;border:1px solid #ddd;">
+            <summary style="cursor:pointer;font-weight:600;">💡 How are your perfume matches scored?</summary>
+            <div style="margin-top:8px;line-height:1.5;">
+                Your perfume recommendations are based on how well each scent matches your personal preferences.
+                You selected the notes you enjoy and used sliders to tell us how much you love each one — from "just okay" to "obsessed."
+                We then scored each perfume based on which of your chosen scents it contains and how strongly you weighted them.
+                The more a perfume reflects your favorite scents (especially the ones you adore), the higher it ranks in your results.
+            </div>
+            </details>
+            """, unsafe_allow_html=True)
+
