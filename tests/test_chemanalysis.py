@@ -1,10 +1,6 @@
-import os
-import sys
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import DataStructs
-
-#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
 from chooseyourperfume.chem_analysis import (
     canonicalize_smiles,
@@ -13,8 +9,6 @@ from chooseyourperfume.chem_analysis import (
     scent_categories,
     run_pipeline
 )
-
-import subprocess
 
 # Test 1: SMILES Canonicalization Valid Case
 def test_canonicalize_smiles_valid():
