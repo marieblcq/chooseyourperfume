@@ -168,14 +168,15 @@ if st.button("🔍 Generate Recommendations"):
             """, unsafe_allow_html=True)
 
             st.markdown("""
-            <details style="background-color:#fff;padding:12px;border-radius:8px;margin-top:8px;border:1px solid #ddd;">
-            <summary style="cursor:pointer;font-weight:600;">💡 How are your perfume matches scored?</summary>
-            <div style="margin-top:8px;line-height:1.5;">
-                Your perfume recommendations are based on how well each scent matches your personal preferences.
-                You selected the notes you enjoy and used sliders to tell us how much you love each one — from "just okay" to "obsessed."
-                We then scored each perfume based on which of your chosen scents it contains and how strongly you weighted them.
-                The more a perfume reflects your favorite scents (especially the ones you adore), the higher it ranks in your results.
-            </div>
-            </details>
-            """, unsafe_allow_html=True)
-
+        <details style="background-color:#fff;padding:12px;border-radius:8px;margin-top:8px;border:1px solid #ddd;">
+        <summary style="cursor:pointer;font-weight:600;">💡 How are your perfume matches scored?</summary>
+        <div style="margin-top:8px;line-height:1.5;">
+            Your perfume recommendations are scored based on how well each scent in a perfume matches your personal preferences.
+            You selected the notes you like and used sliders to show how much you love each one — from "just okay" to "obsessed."
+            <br><br>
+            Each perfume earns points for containing your selected notes, and the more important a note is to you (based on the slider), the more it contributes.
+            We total these points and calculate a <strong>percentage match</strong> — so a perfume that includes all your top notes could score close to <strong>100%</strong>,
+            while one that only matches a few will score lower. The higher the percentage, the better the match for your personal scent profile.
+        </div>
+        </details>
+        """, unsafe_allow_html=True)
