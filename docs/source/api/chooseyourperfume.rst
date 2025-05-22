@@ -28,14 +28,6 @@ chooseyourperfume.logic\_cyp module
    :undoc-members:
    :show-inheritance:
 
-chooseyourperfume.questionnaire module
---------------------------------------
-
-.. automodule:: chooseyourperfume.questionnaire
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 
