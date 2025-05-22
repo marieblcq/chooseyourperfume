@@ -3,7 +3,6 @@ import io, random, base64
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-
 from src.chooseyourperfume.logic_cyp import (
     load_data, ask_preferences, score_perfumes, avg_similarity
 )

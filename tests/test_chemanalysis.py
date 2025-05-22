@@ -2,8 +2,6 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import DataStructs
 
-#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-
 from chooseyourperfume.chem_analysis import (
     canonicalize_smiles,
     generate_fingerprint,

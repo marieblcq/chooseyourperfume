@@ -78,8 +78,6 @@ def run_pipeline():
 
     return data, tsne_result
 
-#if __name__ == "__main__":
-#    data, tsne_result = run_pipeline()
 
     # --- Plot Results ---
 def plot_tsne(data, tsne_result):

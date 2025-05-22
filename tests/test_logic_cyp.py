@@ -3,10 +3,6 @@ import sys
 import pandas as pd
 from rdkit import Chem
 
-#sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-
-
-
 from chooseyourperfume.logic_cyp import (
     enrich_with_scent_columns,
     score_perfumes,
