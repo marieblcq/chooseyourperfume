@@ -10,7 +10,6 @@ try:
     from dataset import scent_categories
     from dataset import (
         load_perfume_descriptions,
-        load_fragrantica_data,
         load_extended_perfume_set,
         load_smiles_odors
     )
@@ -18,7 +17,6 @@ except ImportError:
     from .dataset import scent_categories
     from .dataset import (
         load_perfume_descriptions,
-        load_fragrantica_data,
         load_extended_perfume_set,
         load_smiles_odors
     )
@@ -71,7 +69,6 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=Non
         st.warning("🚫 None of the selected scents matched our dataset. Try different notes.")
         return pd.DataFrame(columns=["score"])
 
-    # Percentage-based scoring
     # Weighted match score
     weighted_scores = sum(
         perfume_scores[scent] * weights[scent] for scent in valid_scents

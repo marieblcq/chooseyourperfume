@@ -5,7 +5,7 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 
 from src.chooseyourperfume.logic_cyp import (
-    load_data, ask_preferences, score_perfumes, get_molecules_for_scents, avg_similarity
+    load_data, ask_preferences, score_perfumes, avg_similarity
 )
 
 # --- Config & CSS ---
@@ -82,8 +82,6 @@ if selected_scents:
             key=f"w_{note}"
         )
 
-# --- Step 3: Generate Recommendations ---
-# --- Step 3: Generate Recommendations ---
 # --- Step 3: Generate Recommendations ---
 if st.button("🔍 Generate Recommendations"):
     if not selected_scents:
