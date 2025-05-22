@@ -72,8 +72,13 @@ def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=Non
         return pd.DataFrame(columns=["score"])
 
     # Percentage-based scoring
-    perfume_scores['match_count'] = perfume_scores[valid_scents].sum(axis=1)
-    perfume_scores['score'] = (perfume_scores['match_count'] / len(valid_scents)) * 100
+    # Weighted match score
+    weighted_scores = sum(
+        perfume_scores[scent] * weights[scent] for scent in valid_scents
+    )
+
+    perfume_scores['score'] = (weighted_scores / sum(weights.values())) * 100
+
 
     # Clean perfume names for robust merging
     def clean_name(name):
