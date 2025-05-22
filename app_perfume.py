@@ -4,7 +4,7 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
 
-from src.chooseyourperfume.logic_cyp import (
+from chooseyourperfume.logic_cyp import (
     load_data, ask_preferences, score_perfumes, get_molecules_for_scents, avg_similarity
 )
 

@@ -41,21 +41,6 @@ def load_fragrantica_data():
 def load_extended_perfume_set():
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "datasets", "fra_perfumes.csv"))
     return load_csv(path)
-#def load_smiles_odors():
-#    """Dataset 1 - Molecules in SMILES format with corresponding odors."""
-#    return load_csv("data/datasets/Multi-Labelled_Smiles_Odors_dataset.csv")
-
-#def load_perfume_descriptions():
-#    """Dataset 2 - Commercial perfume descriptions, images, and notes."""
-#    return load_csv("data/datasets/final_perfume_data.csv") 
-
-#def load_fragrantica_data():
-#    """Dataset 3 - General Fragrantica dataset."""
-#    return load_csv("data/datasets/fra_cleaned.csv", sep=";")
-
-#def load_extended_perfume_set():
-#    """Dataset 4 - Additional structured perfume records."""
-#    return load_csv("data/datasets/fra_perfumes.csv")
 
 
 #DICTIONNARY 

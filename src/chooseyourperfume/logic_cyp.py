@@ -26,7 +26,7 @@ except ImportError:
 
 def load_data():
     perfume_desc_df = load_perfume_descriptions()
-    perfume_df = load_extended_perfume_set()
+    perfume_df = load_extended_perfume_set(),load_perfume_descriptions()
     scent_to_smiles_df = load_smiles_odors()
 
     # Standardize columns
