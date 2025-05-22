@@ -162,7 +162,7 @@ if st.button("🔍 Generate Recommendations"):
                   <li><strong>1.0</strong> → perfect match</li>
                   <li><strong>0.0</strong> → no shared features</li>
                 </ul>
-                Use it to gauge how alike molecules really are!
+                Use it to gauge how alike molecules really are! For example if the tanimoto simlarity is of 0.7, the moelcules are 70% alike ! 
               </div>
             </details>
             """, unsafe_allow_html=True)
