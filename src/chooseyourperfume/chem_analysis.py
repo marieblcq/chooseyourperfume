@@ -6,7 +6,13 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import seaborn as sns
-from .dataset import load_smiles_odors, scent_categories
+try:
+    # When used as part of the package
+    from .dataset import load_smiles_odors, scent_categories
+except ImportError:
+    # When used in a notebook or as a standalone script
+    from dataset import load_smiles_odors, scent_categories
+#from .dataset import load_smiles_odors, scent_categories
 
 def canonicalize_smiles(smiles):
     mol = Chem.MolFromSmiles(smiles)
@@ -72,10 +78,11 @@ def run_pipeline():
 
     return data, tsne_result
 
-if __name__ == "__main__":
-    data, tsne_result = run_pipeline()
+#if __name__ == "__main__":
+#    data, tsne_result = run_pipeline()
 
     # --- Plot Results ---
+def plot_tsne(data, tsne_result):
     plt.figure(figsize=(12, 8))
     sns.scatterplot(
         x=tsne_result[:, 0],
@@ -91,3 +98,7 @@ if __name__ == "__main__":
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     plt.show()
+
+if __name__ == "__main__":
+    data, tsne_result = run_pipeline()
+    plot_tsne(data, tsne_result)
