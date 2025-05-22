@@ -35,8 +35,7 @@ st.markdown(
 def cached_load_data():
     return load_data()
 
-perfume_to_scent_df, perfume_clean_df, _, scent_to_smiles_df = cached_load_data()
-
+perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df = cached_load_data()
 
 # --- Header ---
 col1, col2 = st.columns([1, 4])
@@ -102,8 +101,7 @@ if st.button("🔍 Generate Recommendations"):
         st.warning("🚨 Please pick at least one note before generating recommendations.")
     else:
         with st.spinner("🔬 Finding your perfect perfumes..."):
-            top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_clean_df, weights)
-
+            top = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
 
         col_perf, col_mol = st.columns(2, gap="large")
 
@@ -113,15 +111,11 @@ if st.button("🔍 Generate Recommendations"):
                 st.warning("🚫 No matching perfumes found. Try selecting different notes or adjusting weights.")
             else:
                 for idx, row in top.head(5).iterrows():
-            
-
-                    perfume_name = row.get('name_x')  or row.get('name_y') or 'Unknown'
-                    perfume_name = str(perfume_name).title()
-                    brand = row.get('brand_x')
-
+                    perfume_name = row.get('name', 'Unknown')
+                    brand = row.get('brand', 'Unknown')
                     score = row.get('score', 0)
                     description = row.get('description_x') or row.get('description_y') or 'No description available.'
-                    ingredients = row.get('notes_x') or row.get('main accords_x') or row.get('main accords_y') or 'No ingredients listed.'
+                    ingredients = row.get('notes')
 
                     if pd.isna(description) or str(description).strip() == '':
                         description = 'No description available.'
@@ -131,7 +125,7 @@ if st.button("🔍 Generate Recommendations"):
                         if isinstance(ingredients, str):
                             ingredients = ingredients.replace('[', '').replace(']', '').replace("'", '').replace(';', ',').strip()
 
-                    image_url = row.get('image url_x')
+                    image_url = row.get('image url')
                     with st.container():
                         left, right = st.columns([1, 3])
                         if pd.notna(image_url) and isinstance(image_url, str) and image_url.strip():
@@ -139,7 +133,7 @@ if st.button("🔍 Generate Recommendations"):
                         with right:
                             st.markdown(f"""
                                 <h4>{perfume_name} <small style="color:gray;">by {brand}</small></h4>
-                               <p><strong>Score:</strong> {score:.2f}%</p>
+                                <p><strong>Score:</strong> {score}</p>
                             """, unsafe_allow_html=True)
 
                             if len(description) > 300:
@@ -227,4 +221,3 @@ if st.button("🔍 Generate Recommendations"):
     """,
     unsafe_allow_html=True,
 )
-
