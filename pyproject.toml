@@ -18,7 +18,6 @@ dependencies = [
     "numpy==1.25",
     "matplotlib",
     "scikit-learn>=1.3",
-    "tox"
 ]
 
 authors = [
