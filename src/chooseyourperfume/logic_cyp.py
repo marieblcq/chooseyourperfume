@@ -40,15 +40,33 @@ def load_data():
 
     return perfume_to_scent_df, perfume_desc_df, perfume_df, scent_to_smiles_df
 
-
 def enrich_with_scent_columns(df, scent_list, text_column='description'):
     if text_column not in df.columns:
         print(f"⚠️ Text column '{text_column}' not found in columns: {df.columns}")
         return df
+
+    # Clean column names once
+    text_series = df[text_column].astype(str)
+
+    # Prepare a dictionary to hold all new columns
+    scent_columns = {}
+
     for scent in scent_list:
         scent_clean = scent.strip().lower()
-        df[scent_clean] = df[text_column].str.contains(scent, case=False, na=False).astype(int)
-    return df
+        scent_columns[scent_clean] = text_series.str.contains(scent, case=False, na=False).astype(int)
+
+    # Concatenate all new columns in one operation
+    enriched_df = pd.concat([df, pd.DataFrame(scent_columns)], axis=1)
+
+    return enriched_df
+#def enrich_with_scent_columns(df, scent_list, text_column='description'):
+#    if text_column not in df.columns:
+#        print(f"⚠️ Text column '{text_column}' not found in columns: {df.columns}")
+#        return df
+#    for scent in scent_list:
+#        scent_clean = scent.strip().lower()
+#        df[scent_clean] = df[text_column].str.contains(scent, case=False, na=False).astype(int)
+#    return df
 
 
 def score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights=None):

@@ -109,8 +109,7 @@ The package should have already been installed by following the instructions abo
 ### Run tests and coverage
 
 ```
-(perfume) $ pip install tox
-(perfume) $ tox
+(perfume) $ python -m pytest --cov=src/chooseyourperfume --cov-report=term --cov-report=html
 ```
 
 Note: perfume is the example name chosen in this README for the new environment created, it can be modified to your liking.
