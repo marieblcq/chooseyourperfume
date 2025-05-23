@@ -39,11 +39,6 @@ cd chooseyourperfume
 pip install -e ".[test,doc]"
 ```
 
-Or via pip and github as well:
-
-```python
-pip install git+https://github.com/marieblcq/chooseyourperfume.git
-```
 
 ## 🔥 Usage
 
@@ -53,22 +48,27 @@ Now that the environment is activated and the package is installed all that is n
 streamlit run app_perfume.py
 ```
 
+If you would like to see a deeper chemical analysis🧪 of the molecules which represent each categories of scent run in the terminal:
+
+```python
+python -m src.chooseyourperfume.chem_analysis
+```
+
+This should display a colourful graph with each dot representing a molecule and each colour representing a category!
+
 If you want to receive perfume recommendations without using the interface, no problem ! Here is how the package can be used directly in python🐍 code:
 
 ```python
 from src.chooseyourperfume.logic_cyp import load_data, score_perfumes
 
-#first, the datasets need to be loaded
 perfume_to_scent_df, perfume_clean_df, perfume_df, scent_to_smiles_df = load_data()
 
 #select scents and weights (optional, to be chosen from: 0.1, 0.3, 0.7, 1.0, 1.5, 0.1 being 'its okay' and 1.5 being 'obsessed!')
 selected_scents = ['lily', 'lemon', 'mint']
 weights = {'lily' : 1.0, 'lemon' : 0.7, 'mint' : 0.3}
 
-#to obtain a result
 results = score_perfumes(selected_scents, perfume_to_scent_df, perfume_df, weights)
 
-#to see the result
 print(results.head())
 ```
 
